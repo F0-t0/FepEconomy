@@ -1,3 +1,34 @@
+#----------- Error Messages -----------
 no-balance: "&cYou cannot withdraw negative amount"
 insufficient-funds: "&cInsufficient funds"
 deposit-negative: "&cCannot deposit negative amount"
+args: "&cNot enough arguments"
+player-not-found: "&cCould not find player %player%"
+
+#----------- /bal Command -----------
+# %bal% - Balance
+# %player% - Player
+balance-self: "&aYour balance is %bal%"
+balance-other: "&a%player%'s Balance is %bal%"
+
+
+#----------- /eco Command -----------
+#%amount% - amount
+#%player% - the player
+set: "&aSet %player%'s balance to %amount%"
+add: "&aAdded %amount% to %player%'s balance"
+take: "&aTook %amount% from %player%'s balance"
+
+#----------- /pay Command -----------
+#%amount% - amount
+#%receiver% - receiver
+#%sender% - sender
+
+invalid-number: "&cInvalid number format"
+sent: "&aSuccessfully transferred %amount% to %receiver%"
+received: "&aReceived a payment of %amount% from %sender%"
+player-turned-off-payments: "&c%receiver% has turned off payments"
+
+#----------- /togglePay Command -----------
+turned-off: "&aSuccessfully &cturned off &apayments"
+turned-on: "&aSuccessfully turned on payments"
