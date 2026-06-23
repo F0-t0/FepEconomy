@@ -1,0 +1,3 @@
+no-balance: "&cYou cannot withdraw negative amount"
+insufficient-funds: "&cInsufficient funds"
+deposit-negative: "&cCannot deposit negative amount"
