@@ -6,7 +6,11 @@ import org.bukkit.OfflinePlayer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 
 public class SQLHelper {
@@ -18,20 +22,153 @@ public class SQLHelper {
 
     public void savePlayer(OfflinePlayer player) throws SQLException {
         double bal = econ.getBalance(player);
+        String name = player.getName();
         Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("INSERT OR REPLACE INTO accounts (uuid, balance) VALUES (?, ?)")) {
+        try (PreparedStatement ps = con.prepareStatement("INSERT OR REPLACE INTO accounts (uuid, name, balance) VALUES (?, ?, ?)")) {
             ps.setString(1, player.getUniqueId().toString());
-            ps.setDouble(2, bal);
+            ps.setString(2, name);
+            ps.setDouble(3, bal);
             ps.executeUpdate();
         }
     }
 
     public void createPlayer(OfflinePlayer player, double bal) throws SQLException {
+        String name = player.getName();
         Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("INSERT INTO accounts VALUES (?, ?)")) {
+        try (PreparedStatement ps = con.prepareStatement("INSERT INTO accounts (uuid, name, balance) VALUES (?, ?, ?)")) {
             ps.setString(1, player.getUniqueId().toString());
-            ps.setDouble(2, bal);
+            ps.setString(2, name);
+            ps.setDouble(3, bal);
             ps.executeUpdate();
         }
+    }
+
+    public void updatePlayerName(UUID uuid, String name) throws SQLException {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET name = ? WHERE uuid = ?")) {
+            ps.setString(1, name);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        }
+    }
+
+    public UUID getUUIDByName(String name) {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        if (con == null) return null;
+        try (PreparedStatement ps = con.prepareStatement("SELECT uuid FROM accounts WHERE name = ? COLLATE NOCASE LIMIT 1")) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return UUID.fromString(rs.getString("uuid"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public void saveTransaction(UUID playerUUID, double amount, String sender ,String receiver, String status, long timestamp) {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        try (PreparedStatement ps = con.prepareStatement(
+                "INSERT INTO history (player_uuid, amount, sender, receiver, status, timestamp)" +
+                        "VALUES (?, ?, ?, ?, ?, ?)"
+        )) {
+            ps.setString(1, playerUUID.toString());
+            ps.setDouble(2, amount);
+            ps.setString(3, sender);
+            ps.setString(4, receiver);
+            ps.setString(5, status);
+            ps.setLong(6, timestamp);
+
+            ps.executeUpdate();
+
+            trimHistory(playerUUID, FepEconomy.getPlugin().getConfig().getInt("max-history"));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void trimHistory(UUID playerUUID, int max) {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        try (PreparedStatement ps = con.prepareStatement(
+                "DELETE FROM history " +
+                        "WHERE player_uuid = ? " +
+                        "AND id NOT IN ( " +
+                        "SELECT id FROM history " +
+                        "WHERE player_uuid = ? " +
+                        "ORDER BY timestamp DESC " +
+                        "LIMIT ? " +
+                        ")")
+        ) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, playerUUID.toString());
+            ps.setInt(3, max);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<UUID> getAllAccounts() throws SQLException {
+        List<UUID> uuids = new ArrayList<>();
+        Connection con = FepEconomy.getPlugin().getConnection();
+        try (PreparedStatement ps = con.prepareStatement("SELECT uuid FROM accounts");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                uuids.add(UUID.fromString(rs.getString("uuid")));
+            }
+        }
+        return uuids;
+    }
+
+    public List<Transaction> getHistory(UUID playerUUID, int limit, int page, int pagesize) {
+        List<Transaction> transactions = new ArrayList<>();
+        int offset = (page-1) * pagesize;
+
+        Connection con = FepEconomy.getPlugin().getConnection();
+        try (PreparedStatement ps = con.prepareStatement(
+                "SELECT amount, sender, receiver, status, timestamp FROM history WHERE player_uuid = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+        )) {
+            ps.setString(1, playerUUID.toString());
+            ps.setInt(2, limit);
+            ps.setInt(3, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(new Transaction(
+                            rs.getDouble("amount"),
+                            rs.getString("sender"),
+                            rs.getString("receiver"),
+                            rs.getString("status"),
+                            rs.getLong("timestamp")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return transactions;
+    }
+
+    public List<UUID> getTopPlayers(int offset, int limit) {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        List<UUID> uuids = new ArrayList<>();
+        try (PreparedStatement ps = con.prepareStatement(
+                "SELECT uuid FROM accounts ORDER BY balance DESC LIMIT ? OFFSET ?"
+        )) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    uuids.add(UUID.fromString(rs.getString("uuid")));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return uuids;
     }
 }

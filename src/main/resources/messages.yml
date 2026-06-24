@@ -4,6 +4,7 @@ insufficient-funds: "&cInsufficient funds"
 deposit-negative: "&cCannot deposit negative amount"
 args: "&cNot enough arguments"
 player-not-found: "&cCould not find player %player%"
+same-player: "&cYou cannot send money to yourself"
 
 #----------- /bal Command -----------
 # %bal% - Balance
@@ -32,3 +33,37 @@ player-turned-off-payments: "&c%receiver% has turned off payments"
 #----------- /togglePay Command -----------
 turned-off: "&aSuccessfully &cturned off &apayments"
 turned-on: "&aSuccessfully turned on payments"
+
+#----------- /eco reload -----------
+reload: "&aConfiguration reloaded successfully"
+
+#----------- /eco reset -----------
+reset: "&aReset %player%'s balance to %amount%"
+reset-all: "&aReset %count% players to %amount%"
+
+#---- Menu Globals----
+nextPage-name: "&6Next Page"
+previousPage-name: "&6Previous Page"
+
+#----------- Transaction History -----------
+
+guiTitle: "&aTransaction History"
+
+status-received: "&a&lRECEIVED"
+status-sent: "&4&lSENT"
+
+Transaction-name: "&b&lTRANSACTION "
+Transaction-Lore:
+  - "&7- &f&lAmount: &b&l%amount%"
+  - "&7- &f&lSender: &b&l%sender%"
+  - "&7- &f&lReceiver: &b&l%receiver%"
+  - "&7- &f&lStatus: &b&l%status%"
+  - "&7- &f&lTime: &b&l%time%"
+
+#----------- BalTop -----------
+balTop-Title: "&6BalTOP"
+
+head-name: "&f%place%. &6%player%"
+head-lore:
+  - ""
+  - "&7- &f&lBalance: &b&l%bal%"

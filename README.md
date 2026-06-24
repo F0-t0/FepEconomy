@@ -1,0 +1,139 @@
+<p align="center">
+  <img alt="image" src="https://cdn.discordapp.com/attachments/1358719974629445733/1519354972716794080/FepEconomy.png?ex=6a3d4115&amp;is=6a3bef95&amp;hm=5a529108e0b0465b31db2211a6dd0d9624a916914b9b1cc86ba6d7f4d026918b&amp;" />
+</p>
+
+<p align="center">
+  <img alt="Custom badge" src="https://shieldcn.dev/badge/JAVA-21-22c55e.svg?theme=orange&logo=ri%3AFaJava).svg?theme=gray&amp;logo=ri%3AFaJava&amp;label=Java" />
+  <a href="https://github.com/F0-T0/FepEconomy"><img alt="badge" src="https://shieldcn.dev/github/F0-T0/FepEconomy/stars.svg" /></a>
+</p>
+
+## Overview
+
+**FepEconomy** is a minecraft Plugin that implements Vault economy
+
+<p align="center">
+  <img alt="image" src="https://cdn.discordapp.com/attachments/1358719974629445733/1519352564544573643/FepEconomyPoster.png?ex=6a3d3ed7&amp;is=6a3bed57&amp;hm=3961ce2035765fdc35a08227c534d3f125c20b5e248f079cc77f11c4c74be48a&amp;" />
+</p>
+
+## Permissions:
+
+| Permission | Description |
+| --- | --- |
+| fepeconomy.admin | gives the player access to /eco set\|take\|reset\|add\|reload and the access to payhistory of other players |
+| fepeconomy.baltop.exempt | Exempts the player from baltop so he doesn't show up |
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| /eco take <player> <amount> | Removes money from the specified player |
+| /eco give <player> <amount> | Gives the specified player money |
+| /eco set <player> <amount> | Sets the specified player money |
+| /eco reset <player\|all> | Resets the money of the specified player or everyone to the start amount |
+| /eco reload | Reloads the plugin |
+| /pay <player> <amount> | Transfers the specified amount of money to the specified player |
+| /togglepay | Toggles the ability for players to pay you |
+| /payhistory <player (optional> | Shows your or the specified player's pay history |
+| /baltop | Show's the balance top |
+| /bal <player (optional) | Show's your or the specified player's balance |
+
+## Config.yml
+```
+
+#Should the plugin use a symbol for the currency
+#or the name plular/singular
+use-symbol: false
+symbol: $
+
+currency-name-singular: "dollar"
+currency-name-plural: "dollars"
+
+#The max amount of fetching for baltop players
+# Recommended: 50
+max-fetch: 50
+
+#The maximum amount of transactions saved per player
+# Recommended: 20-150
+max-history: 100
+
+#Per how many seconds should the
+#Data be saved
+autosave: 30
+
+#The amount of money for the player to start with
+start-amount: 50
+
+```
+
+## Messages.yml
+```
+#----------- Error Messages -----------
+no-balance: "&cYou cannot withdraw negative amount"
+insufficient-funds: "&cInsufficient funds"
+deposit-negative: "&cCannot deposit negative amount"
+args: "&cNot enough arguments"
+player-not-found: "&cCould not find player %player%"
+same-player: "&cYou cannot send money to yourself"
+
+#----------- /bal Command -----------
+# %bal% - Balance
+# %player% - Player
+balance-self: "&aYour balance is %bal%"
+balance-other: "&a%player%'s Balance is %bal%"
+
+
+#----------- /eco Command -----------
+#%amount% - amount
+#%player% - the player
+set: "&aSet %player%'s balance to %amount%"
+add: "&aAdded %amount% to %player%'s balance"
+take: "&aTook %amount% from %player%'s balance"
+
+#----------- /pay Command -----------
+#%amount% - amount
+#%receiver% - receiver
+#%sender% - sender
+
+invalid-number: "&cInvalid number format"
+sent: "&aSuccessfully transferred %amount% to %receiver%"
+received: "&aReceived a payment of %amount% from %sender%"
+player-turned-off-payments: "&c%receiver% has turned off payments"
+
+#----------- /togglePay Command -----------
+turned-off: "&aSuccessfully &cturned off &apayments"
+turned-on: "&aSuccessfully turned on payments"
+
+#----------- /eco reload -----------
+reload: "&aConfiguration reloaded successfully"
+
+#----------- /eco reset -----------
+reset: "&aReset %player%'s balance to %amount%"
+reset-all: "&aReset %count% players to %amount%"
+
+#---- Menu Globals----
+nextPage-name: "&6Next Page"
+previousPage-name: "&6Previous Page"
+
+#----------- Transaction History -----------
+
+guiTitle: "&aTransaction History"
+
+status-received: "&a&lRECEIVED"
+status-sent: "&4&lSENT"
+
+Transaction-name: "&b&lTRANSACTION "
+Transaction-Lore:
+  - "&7- &f&lAmount: &b&l%amount%"
+  - "&7- &f&lSender: &b&l%sender%"
+  - "&7- &f&lReceiver: &b&l%receiver%"
+  - "&7- &f&lStatus: &b&l%status%"
+  - "&7- &f&lTime: &b&l%time%"
+
+#----------- BalTop -----------
+balTop-Title: "&6BalTOP"
+
+head-name: "&f%place%. &6%player%"
+head-lore:
+  - ""
+  - "&7- &f&lBalance: &b&l%bal%"
+```

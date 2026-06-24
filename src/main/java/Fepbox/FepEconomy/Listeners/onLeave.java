@@ -15,6 +15,7 @@ public class onLeave implements Listener {
     public void onLeave(PlayerQuitEvent e) {
         VaultEconomy econ = FepEconomy.getPlugin().getVaultEconomy();
         econ.getDirty().remove(e.getPlayer().getUniqueId());
+        FepEconomy.removeDataManger(e.getPlayer().getUniqueId());
         Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
             SQLHelper helper = new SQLHelper();
             try {

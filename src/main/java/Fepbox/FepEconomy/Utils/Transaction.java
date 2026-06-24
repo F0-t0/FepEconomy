@@ -1,4 +1,4 @@
 package Fepbox.FepEconomy.Utils;
 
-public record Transaction() {
+public record Transaction(double amount, String sender, String receiver, String status, Long timestamp) {
 }

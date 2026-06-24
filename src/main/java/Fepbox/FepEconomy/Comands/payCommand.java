@@ -2,6 +2,7 @@ package Fepbox.FepEconomy.Comands;
 
 import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.Utils.ColorUtils;
+import Fepbox.FepEconomy.Utils.SQLHelper;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -33,6 +34,14 @@ public class payCommand implements CommandExecutor, TabCompleter {
             return true;
         };
 
+        if (Bukkit.getPlayer(args[0]) == (Player) sender) {
+            String cy = FepEconomy.getMessagesCfg().getString("same-player");
+            sender.sendMessage(ColorUtils.translateColorCodes(cy));
+            return true;
+        }
+        if (!Bukkit.getPlayer(args[0]).getPersistentDataContainer().has(FepEconomy.getKey(), PersistentDataType.BOOLEAN)) {
+            Bukkit.getPlayer(args[0]).getPersistentDataContainer().set(FepEconomy.getKey(), PersistentDataType.BOOLEAN, true);
+        }
         if (!Bukkit.getPlayer(args[0]).getPersistentDataContainer().get(FepEconomy.getKey(), PersistentDataType.BOOLEAN)) {
             String to = FepEconomy.getMessagesCfg().getString("player-turned-off-payments", "&c%receiver% has turned off payments");
             to.replace("%receiver%", args[0]);
@@ -43,6 +52,13 @@ public class payCommand implements CommandExecutor, TabCompleter {
 
         double amount = FepEconomy.parseAmount(args[1]);
 
+        Economy econ = FepEconomy.getPlugin().getVaultEconomy();
+
+        if (amount > econ.getBalance((OfflinePlayer) sender)) {
+            sender.sendMessage(ColorUtils.translateColorCodes(FepEconomy.getMessagesCfg().getString("insufficient-funds", "&cInsufficient funds")));
+            return true;
+        }
+
         if (amount == -1) {
             sender.sendMessage(ColorUtils.translateColorCodes(
                     FepEconomy.getMessagesCfg().getString("invalid-number", "&cInvalid number format")
@@ -50,7 +66,7 @@ public class payCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        Economy econ = FepEconomy.getPlugin().getVaultEconomy();
+
         econ.withdrawPlayer((OfflinePlayer) sender, amount);
         econ.depositPlayer((OfflinePlayer) Bukkit.getPlayer(args[0]), amount);
 
@@ -63,6 +79,31 @@ public class payCommand implements CommandExecutor, TabCompleter {
         rmsg = rmsg.replace("%amount%", econ.format(amount));
         rmsg = rmsg.replace("%sender%", sender.getName());
         Bukkit.getPlayer(args[0]).sendMessage(ColorUtils.translateColorCodes(rmsg));
+
+        SQLHelper sql = new SQLHelper();
+        Player target = (Player) Bukkit.getPlayer(args[0]);
+        Player p = (Player) sender;
+
+        String statusR = FepEconomy.getMessagesCfg().getString("status-received");
+        String statusS = FepEconomy.getMessagesCfg().getString("status-sent");
+
+        Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
+            // The sender save
+            sql.saveTransaction(p.getUniqueId(),
+                    amount,
+                    p.getName(),
+                    target.getName(),
+                    statusS,
+                    System.currentTimeMillis());
+            // The receiver save
+            sql.saveTransaction(target.getUniqueId(),
+                    amount,
+                    p.getName(),
+                    target.getName(),
+                    statusR,
+                    System.currentTimeMillis());
+        });
+
 
         return true;
     }

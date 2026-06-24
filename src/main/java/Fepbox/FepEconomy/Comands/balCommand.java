@@ -3,7 +3,6 @@ package Fepbox.FepEconomy.Comands;
 import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.Utils.ColorUtils;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,9 +15,9 @@ public class balCommand implements CommandExecutor {
         String msg = (args.length < 1) ? FepEconomy.getMessagesCfg().getString("balance-self") : FepEconomy.getMessagesCfg().getString("balance-other");
         if (args.length >= 1) {
             msg = msg.replace("%player%", args[0]);
-            msg = msg.replace("%bal%", String.valueOf(econ.getBalance((OfflinePlayer) Bukkit.getPlayer(args[0]))));
+            msg = msg.replace("%bal%", econ.format((econ.getBalance(FepEconomy.getOfflinePlayerByName(args[0])))));
         } else {
-            msg = msg.replace("%bal%", String.valueOf(econ.getBalance((OfflinePlayer) sender)));
+            msg = msg.replace("%bal%", econ.format((econ.getBalance((OfflinePlayer) sender))));
         }
         msg = ColorUtils.translateColorCodes(msg);
         sender.sendMessage(msg);

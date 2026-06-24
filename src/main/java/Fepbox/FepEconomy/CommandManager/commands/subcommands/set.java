@@ -4,9 +4,9 @@ import Fepbox.FepEconomy.CommandManager.SubCommand;
 import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.Utils.ColorUtils;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+
 
 public class set extends SubCommand {
     @Override
@@ -25,24 +25,35 @@ public class set extends SubCommand {
     }
 
     @Override
-    public void preform(Player p, String[] args) {
+    public void preform(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            p.sendMessage(ColorUtils.translateColorCodes(FepEconomy.getMessagesCfg().getString("args",
+            sender.sendMessage(ColorUtils.translateColorCodes(FepEconomy.getMessagesCfg().getString("args",
                     "&cNot enough arguments")));
             return;
         }
         Economy econ = FepEconomy.getPlugin().getVaultEconomy();
-
-        double current = econ.getBalance((Player) p);
+        OfflinePlayer target = FepEconomy.getOfflinePlayerByName(args[1]);
+        if (!econ.hasAccount(target)) {
+            sender.sendMessage(ColorUtils.translateColorCodes(
+                    FepEconomy.getMessagesCfg().getString("player-not-found", "&cCould not find player %player%")
+                            .replace("%player%", args[1])));
+            return;
+        }
         double amount = FepEconomy.parseAmount(args[2]);
-        econ.withdrawPlayer((OfflinePlayer) Bukkit.getPlayer(args[1]), current);
-        econ.depositPlayer((OfflinePlayer) Bukkit.getPlayer(args[1]), amount);
+        if (amount < 0) {
+            sender.sendMessage(ColorUtils.translateColorCodes(
+                    FepEconomy.getMessagesCfg().getString("invalid-number", "&cInvalid number format")));
+            return;
+        }
+        double current = econ.getBalance(target);
+        econ.withdrawPlayer(target, current);
+        econ.depositPlayer(target, amount);
 
         String msg = FepEconomy.getMessagesCfg().getString("set",
                 "&aSet %player%'s balance to %amount%");
         msg = msg.replace("%amount%", econ.format(amount));
         msg = msg.replace("%player%", args[1]);
         msg = ColorUtils.translateColorCodes(msg);
-        p.sendMessage(msg);
+        sender.sendMessage(msg);
     }
 }
