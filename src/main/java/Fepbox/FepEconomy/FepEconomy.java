@@ -9,6 +9,10 @@ import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
 import Fepbox.FepEconomy.Utils.SQLHelper;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.filter.RegexFilter;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -166,6 +170,10 @@ public final class FepEconomy extends JavaPlugin {
             vaultEconomy.createPlayerAccount(p);
         }
 
+        if (getConfig().getBoolean("suppress-warnings")) {
+            filterErrors();
+        }
+
         startSaveTask();
     }
 
@@ -242,4 +250,25 @@ public final class FepEconomy extends JavaPlugin {
         startSaveTask();
     }
 
+
+    private void filterErrors() {
+        try {
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            Configuration config = ctx.getConfiguration();
+
+            RegexFilter filter = RegexFilter.createFilter(
+                    ".*Couldn't look up profile properties.*",
+                    null,
+                    false,
+                    RegexFilter.Result.DENY,
+                    RegexFilter.Result.NEUTRAL
+            );
+            filter.start();
+            config.getRootLogger().addFilter(filter);
+            ctx.updateLoggers();
+
+        } catch (Exception e) {
+            getLogger().warning("Nie udało się zaaplikować filtra logów: " + e.getMessage());
+        }
+    }
 }

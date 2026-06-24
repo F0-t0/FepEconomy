@@ -4,7 +4,6 @@ import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.MenuManager.DataManger;
 import Fepbox.FepEconomy.MenuManager.MenuManager;
 import Fepbox.FepEconomy.Utils.ColorUtils;
-import Fepbox.FepEconomy.Utils.HeadCache;
 import Fepbox.FepEconomy.Utils.SQLHelper;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -60,7 +59,7 @@ public class balTop extends MenuManager {
             uuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
             int totalFiltered = uuids.size();
             List<UUID> pageUuids = uuids.subList(0, Math.min(9, totalFiltered));
-            boolean hasNext = totalFiltered >= 9;
+            boolean hasNext = totalFiltered > 9;
             Bukkit.getScheduler().runTask(FepEconomy.getPlugin(), () -> {
                 if (hasNext) {
                     inventory.setItem(50, it);
@@ -79,10 +78,10 @@ public class balTop extends MenuManager {
                     ItemStack item = new ItemStack(Material.PLAYER_HEAD);
                     ItemMeta meta = item.getItemMeta();
 
-                    SkullMeta sm = HeadCache.getHead(uuid);
-                    if (sm == null) {
-                        sm.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
-                    }
+                    SkullMeta sm = (SkullMeta) meta;
+
+                    sm.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
+
                     String name = FepEconomy.getMessagesCfg().getString("head-name",
                             "&6%player%");
                     name = name.replace("%player%", Bukkit.getOfflinePlayer(uuid).getName());

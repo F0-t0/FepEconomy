@@ -10,6 +10,11 @@ currency-name-plural: "dollars"
 # Recommended: 20
 max-fetch: 20
 
+#Should it filter out warnings
+#From skins not loading
+#WARNING: if enabled could filter out useful errors
+suppress-warnings: true
+
 #The maximum amount of transactions saved per player
 # Recommended: 20-150
 max-history: 100
