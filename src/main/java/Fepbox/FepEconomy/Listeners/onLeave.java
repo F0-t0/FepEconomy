@@ -1,6 +1,7 @@
 package Fepbox.FepEconomy.Listeners;
 
 import Fepbox.FepEconomy.FepEconomy;
+import Fepbox.FepEconomy.Utils.HeadCache;
 import Fepbox.FepEconomy.Utils.SQLHelper;
 import Fepbox.FepEconomy.VaultEconomy;
 import org.bukkit.Bukkit;
@@ -24,6 +25,8 @@ public class onLeave implements Listener {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
+
+            HeadCache.clearHead(e.getPlayer().getUniqueId());
         });
     }
 }
