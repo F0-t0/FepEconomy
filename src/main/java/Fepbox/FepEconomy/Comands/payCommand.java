@@ -32,7 +32,7 @@ public class payCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ColorUtils.translateColorCodes(nf));
 
             return true;
-        };
+        }
 
         if (Bukkit.getPlayer(args[0]) == (Player) sender) {
             String cy = FepEconomy.getMessagesCfg().getString("same-player");

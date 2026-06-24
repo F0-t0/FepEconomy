@@ -1,0 +1,22 @@
+#Should the plugin use a symbol for the currency
+#or the name plular/singular
+use-symbol: false
+symbol: $
+
+currency-name-singular: "dollar"
+currency-name-plural: "dollars"
+
+#The max amount of fetching per page for baltop players
+# Recommended: 20
+max-fetch: 20
+
+#The maximum amount of transactions saved per player
+# Recommended: 20-150
+max-history: 100
+
+#Per how many seconds should the
+#Data be saved
+autosave: 30
+
+#The amount of money for the player to start with
+start-amount: 50

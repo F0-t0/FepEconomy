@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.List;
 
 public class PayHistory extends MenuManager {
-    int page = 1;
-    Player target;
+    private int page = 1;
+    private final Player target;
 
     public PayHistory(DataManger dataManger, int page, Player target) {
         super(dataManger);
@@ -80,14 +80,16 @@ public class PayHistory extends MenuManager {
             tMeta.setLore(lore);
 
             t.setItemMeta(tMeta);
-            if (id > 44) { break; }
+            if (id > 44) {
+                break;
+            }
             inventory.setItem(id, t);
             id++;
         }
         for (int i = 45; i < 54; i++) {
             inventory.setItem(i, filler);
         }
-        if (page != (FepEconomy.getPlugin().getConfig().getInt("max-history", 100)/45)) {
+        if (page != (FepEconomy.getPlugin().getConfig().getInt("max-history", 100) / 45)) {
             inventory.setItem(50, it);
         }
         if (page != 1) {
@@ -99,17 +101,19 @@ public class PayHistory extends MenuManager {
 
     @Override
     public void handleMenu(InventoryClickEvent e) {
-        if (e.getCurrentItem() == null) return;
+        if (e.getCurrentItem() == null) {
+            return;
+        }
         if (e.getCurrentItem().getType() == Material.SPECTRAL_ARROW) {
-            if (page == (FepEconomy.getPlugin().getConfig().getInt("max-history", 100)/45)) {
+            if (page == (FepEconomy.getPlugin().getConfig().getInt("max-history", 100) / 45)) {
                 return;
             }
-            new PayHistory(FepEconomy.getDataManger(dataManger.getOwner()), page+1, target).open();
+            new PayHistory(FepEconomy.getDataManger(dataManger.getOwner()), page + 1, target).open();
         } else if (e.getCurrentItem().getType() == Material.TIPPED_ARROW) {
             if (page == 1) {
                 return;
             }
-            new PayHistory(FepEconomy.getDataManger(dataManger.getOwner()), page-1, target).open();
+            new PayHistory(FepEconomy.getDataManger(dataManger.getOwner()), page - 1, target).open();
         }
     }
 }

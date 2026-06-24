@@ -2,7 +2,6 @@ package Fepbox.FepEconomy.Comands;
 
 import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.MenuManager.menus.PayHistory;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,7 +22,6 @@ public class payHistoryCommand implements CommandExecutor {
                 new PayHistory(FepEconomy.getDataManger((Player) sender), 1, (Player) FepEconomy.getOfflinePlayerByName(playerName)).open();
             }
         }
-
 
 
         return true;

@@ -1,0 +1,28 @@
+### Maven ###
+target/
+dependency-reduced-pom.xml
+*.jar
+*.war
+*.ear
+
+### IDE - IntelliJ ###
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+### OS ###
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+### Logs ###
+logs/
+*.log
+
+### Environment ###
+.env
+.env.local

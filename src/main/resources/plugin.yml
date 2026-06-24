@@ -1,0 +1,28 @@
+name: FepEconomy
+version: '${version}'
+
+main: Fepbox.FepEconomy.FepEconomy
+api-version: '1.21'
+
+load: STARTUP
+
+authors: [ _F0to ]
+depend: [ Vault ]
+
+
+
+commands:
+  eco:
+  bal:
+    aliases:
+      - balance
+  pay:
+  togglepay:
+    aliases:
+      - paytoggle
+  payhistory:
+  baltop:
+
+permissions:
+  fepeconomy.admin:
+    default: op

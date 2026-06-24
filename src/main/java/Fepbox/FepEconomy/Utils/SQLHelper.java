@@ -54,7 +54,9 @@ public class SQLHelper {
 
     public UUID getUUIDByName(String name) {
         Connection con = FepEconomy.getPlugin().getConnection();
-        if (con == null) return null;
+        if (con == null) {
+            return null;
+        }
         try (PreparedStatement ps = con.prepareStatement("SELECT uuid FROM accounts WHERE name = ? COLLATE NOCASE LIMIT 1")) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
@@ -68,7 +70,7 @@ public class SQLHelper {
         return null;
     }
 
-    public void saveTransaction(UUID playerUUID, double amount, String sender ,String receiver, String status, long timestamp) {
+    public void saveTransaction(UUID playerUUID, double amount, String sender, String receiver, String status, long timestamp) {
         Connection con = FepEconomy.getPlugin().getConnection();
         try (PreparedStatement ps = con.prepareStatement(
                 "INSERT INTO history (player_uuid, amount, sender, receiver, status, timestamp)" +
@@ -90,7 +92,7 @@ public class SQLHelper {
         }
     }
 
-    public void trimHistory(UUID playerUUID, int max) {
+    private void trimHistory(UUID playerUUID, int max) {
         Connection con = FepEconomy.getPlugin().getConnection();
         try (PreparedStatement ps = con.prepareStatement(
                 "DELETE FROM history " +
@@ -125,7 +127,7 @@ public class SQLHelper {
 
     public List<Transaction> getHistory(UUID playerUUID, int limit, int page, int pagesize) {
         List<Transaction> transactions = new ArrayList<>();
-        int offset = (page-1) * pagesize;
+        int offset = (page - 1) * pagesize;
 
         Connection con = FepEconomy.getPlugin().getConnection();
         try (PreparedStatement ps = con.prepareStatement(
