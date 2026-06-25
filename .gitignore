@@ -26,3 +26,13 @@ logs/
 ### Environment ###
 .env
 .env.local
+
+### RUN ###
+run
+gradle
+gradle.properties
+.gradle
+gradlew
+gradlew.bat
+build.gradle.kts
+settings.gradle.kts
