@@ -7,12 +7,15 @@ import Fepbox.FepEconomy.Listeners.onLeave;
 import Fepbox.FepEconomy.MenuManager.DataManger;
 import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
 import Fepbox.FepEconomy.Utils.SQLHelper;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.filter.RegexFilter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -24,6 +27,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -44,6 +49,11 @@ public final class FepEconomy extends JavaPlugin {
     private VaultEconomy vaultEconomy;
     private SQLHelper sql;
     private BukkitTask saveTask;
+
+    private final String user = "F0-t0";
+    private final String repo = "FepEconomy";
+    private boolean isnewVersion;
+
 
     public static FepEconomy getPlugin() {
         return plugin;
@@ -128,6 +138,10 @@ public final class FepEconomy extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+
+        int pluginId = 32204;
+        Metrics metrics = new Metrics(plugin, pluginId);
+
         key = new NamespacedKey(plugin, "togglePay");
         saveDefaultConfig();
         File file = new File(getDataFolder(), "messages.yml");
@@ -135,7 +149,6 @@ public final class FepEconomy extends JavaPlugin {
             saveResource("messages.yml", false);
         }
         messagesCfg = YamlConfiguration.loadConfiguration(file);
-
         try {
             Class.forName("org.sqlite.JDBC");
             this.dbUrl = "jdbc:sqlite:" + getDataFolder() + "/data.db";
@@ -150,7 +163,6 @@ public final class FepEconomy extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         this.vaultEconomy = new VaultEconomy();
         this.vaultEconomy.loadCache();
         getServer().getServicesManager().register(Economy.class, this.vaultEconomy, this, ServicePriority.Normal);
@@ -175,6 +187,55 @@ public final class FepEconomy extends JavaPlugin {
         }
 
         startSaveTask();
+        Bukkit.getScheduler().runTaskLater(plugin,
+                () -> {
+                    Bukkit.getConsoleSender().sendMessage("""
+                             §6 ______         ______                                     \s
+                             §6|  ____|       |  ____|                                    \s
+                             §6| |__ ___ _ __ | |__   ___ ___  _ __   ___  _ __ ___  _   _\s
+                             §6|  __/ _ \\ '_ \\|  __| / __/ _ \\| '_ \\ / _ \\| '_ ` _ \\| | | |
+                             §6| | |  __/ |_) | |___| (_| (_) | | | | (_) | | | | | | |_| |
+                             §6|_|  \\___| .__/|______\\___\\___/|_| |_|\\___/|_| |_| |_|\\__, |
+                             §6         | |                                           __/ |
+                             §6         |_|                                          |___/\s
+                            """);
+                    String newVer = checkUpdates("1.2");
+                    String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
+                    Bukkit.getConsoleSender().sendMessage("""
+                            
+                            §dAutor: §7Foto
+                            §dVersion: 1.2
+                            
+                            §dUpdate: 
+                            """
+                            + newUpdate);
+                }, 400L);
+
+    }
+
+    private String checkUpdates(String ver) {
+        try {
+            URL url = new URL(
+                    "https://api.github.com/repos/" + user + "/" + repo + "/releases/latest"
+            );
+
+            JsonObject json = JsonParser
+                    .parseReader(new InputStreamReader(url.openStream()))
+                    .getAsJsonObject();
+
+            String latestVersion = json.get("tag_name").getAsString();
+
+            if (!ver.equalsIgnoreCase(latestVersion)) {
+                isnewVersion = true;
+            } else {
+                isnewVersion = false;
+            }
+            return latestVersion;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ver;
     }
 
     @Override

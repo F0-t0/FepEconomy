@@ -1,5 +1,5 @@
 name: FepEconomy
-version: '${version}'
+version: '1.2'
 
 main: Fepbox.FepEconomy.FepEconomy
 api-version: '1.21'
@@ -9,10 +9,12 @@ load: STARTUP
 authors: [ _F0to ]
 depend: [ Vault ]
 
-
+libraries:
+  - org.xerial:sqlite-jdbc:3.45.3.0
 
 commands:
   eco:
+    permission: fepeconomy.admin
   bal:
     aliases:
       - balance
@@ -25,4 +27,6 @@ commands:
 
 permissions:
   fepeconomy.admin:
+    default: op
+  fepeconomy.baltop.exempt:
     default: op
