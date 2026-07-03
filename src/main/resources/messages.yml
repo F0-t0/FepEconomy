@@ -1,69 +1,69 @@
 #----------- Error Messages -----------
-no-balance: "&cYou cannot withdraw negative amount"
-insufficient-funds: "&cInsufficient funds"
-deposit-negative: "&cCannot deposit negative amount"
-args: "&cNot enough arguments"
-player-not-found: "&cCould not find player %player%"
-same-player: "&cYou cannot send money to yourself"
+no-balance: "<red>You cannot withdraw negative amount"
+insufficient-funds: "<red>Insufficient funds"
+deposit-negative: "<red>Cannot deposit negative amount"
+args: "<red>Not enough arguments"
+player-not-found: "<red>Could not find player"
+same-player: "<red>You cannot send money to yourself"
 
 #----------- /bal Command -----------
 # %bal% - Balance
 # %player% - Player
-balance-self: "&aYour balance is %bal%"
-balance-other: "&a%player%'s Balance is %bal%"
+balance-self: "<green>Your balance is %bal%"
+balance-other: "<green>%player%'s Balance is %bal%"
 
 
 #----------- /eco Command -----------
 #%amount% - amount
 #%player% - the player
-set: "&aSet %player%'s balance to %amount%"
-add: "&aAdded %amount% to %player%'s balance"
-take: "&aTook %amount% from %player%'s balance"
+set: "<green>Set %player%'s balance to %amount%"
+add: "<green>Added %amount% to %player%'s balance"
+take: "<green>Took %amount% from %player%'s balance"
 
 #----------- /pay Command -----------
 #%amount% - amount
 #%receiver% - receiver
 #%sender% - sender
 
-invalid-number: "&cInvalid number format"
-sent: "&aSuccessfully transferred %amount% to %receiver%"
-received: "&aReceived a payment of %amount% from %sender%"
-player-turned-off-payments: "&c%receiver% has turned off payments"
+invalid-number: "<red>Invalid number format"
+sent: "<green>Successfully transferred %amount% to %receiver%"
+received: "<green>Received a payment of %amount% from %sender%"
+player-turned-off-payments: "<red>%receiver% has turned off payments"
 
 #----------- /togglePay Command -----------
-turned-off: "&aSuccessfully &cturned off &apayments"
-turned-on: "&aSuccessfully turned on payments"
+turned-off: "<green>Successfully <red>turned off <green>payments"
+turned-on: "<green>Successfully turned on payments"
 
 #----------- /eco reload -----------
-reload: "&aConfiguration reloaded successfully"
+reload: "<green>Configuration reloaded successfully"
 
 #----------- /eco reset -----------
-reset: "&aReset %player%'s balance to %amount%"
-reset-all: "&aReset %count% players to %amount%"
+reset: "<green>Reset %player%'s balance to %amount%"
+reset-all: "<green>Reset %count% players to %amount%"
 
 #---- Menu Globals----
-nextPage-name: "&6Next Page"
-previousPage-name: "&6Previous Page"
+nextPage-name: "<gold>Next Page"
+previousPage-name: "<gold>Previous Page"
 
 #----------- Transaction History -----------
 
-guiTitle: "&aTransaction History"
+guiTitle: "<green>Transaction History"
 
-status-received: "&a&lRECEIVED"
-status-sent: "&4&lSENT"
+status-received: "<green><bold>RECEIVED"
+status-sent: "<dark_red><bold>SENT"
 
-Transaction-name: "&b&lTRANSACTION "
+Transaction-name: "<aqua><bold>TRANSACTION "
 Transaction-Lore:
-  - "&7- &f&lAmount: &b&l%amount%"
-  - "&7- &f&lSender: &b&l%sender%"
-  - "&7- &f&lReceiver: &b&l%receiver%"
-  - "&7- &f&lStatus: &b&l%status%"
-  - "&7- &f&lTime: &b&l%time%"
+  - "<gray>- <white><bold>Amount: <aqua><bold>%amount%"
+  - "<gray>- <white><bold>Sender: <aqua><bold>%sender%"
+  - "<gray>- <white><bold>Receiver: <aqua><bold>%receiver%"
+  - "<gray>- <white><bold>Status: <aqua><bold>%status%"
+  - "<gray>- <white><bold>Time: <aqua><bold>%time%"
 
 #----------- BalTop -----------
-balTop-Title: "&6BalTOP"
+balTop-Title: "<gold>BalTOP"
 
-head-name: "&f%place%. &6%player%"
+head-name: "<white>%place%. <gold>%player%"
 head-lore:
   - ""
-  - "&7- &f&lBalance: &b&l%bal%"
+  - "<gray>- <white><bold>Balance: <aqua><bold>%bal%"

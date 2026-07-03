@@ -2,6 +2,7 @@ package Fepbox.FepEconomy.Comands;
 
 import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.Utils.ColorUtils;
+import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -19,8 +20,8 @@ public class balCommand implements CommandExecutor {
         } else {
             msg = msg.replace("%bal%", econ.format((econ.getBalance((OfflinePlayer) sender))));
         }
-        msg = ColorUtils.translateColorCodes(msg);
-        sender.sendMessage(msg);
+        Component component = ColorUtils.deserialize(msg);
+        sender.sendMessage(component);
         return true;
     }
 }

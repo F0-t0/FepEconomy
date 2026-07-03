@@ -6,6 +6,7 @@ import Fepbox.FepEconomy.MenuManager.MenuManager;
 import Fepbox.FepEconomy.Utils.ColorUtils;
 import Fepbox.FepEconomy.Utils.SQLHelper;
 import Fepbox.FepEconomy.Utils.Transaction;
+import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class PayHistory extends MenuManager {
 
     @Override
     public String getTitle() {
-        return ColorUtils.translateColorCodes(FepEconomy.getMessagesCfg().getString("guiTitle", "&aTransaction History"));
+        return ColorUtils.toLegacy(FepEconomy.getMessagesCfg().getString("guiTitle", "<green>Transaction History"));
     }
 
     @Override
@@ -39,12 +41,10 @@ public class PayHistory extends MenuManager {
 
     @Override
     public void SetItems() {
-        ItemStack it = createItem(Material.SPECTRAL_ARROW, ColorUtils.translateColorCodes(
-                FepEconomy.getMessagesCfg().getString("nextPage-name", "&6Next Page")
-        ));
-        ItemStack bk = createItem(Material.TIPPED_ARROW, ColorUtils.translateColorCodes(
-                FepEconomy.getMessagesCfg().getString("previousPage-name", "&6Next Page")
-        ));
+        ItemStack it = createItem(Material.SPECTRAL_ARROW,
+                FepEconomy.getMessagesCfg().getString("nextPage-name", "<gold>Next Page"));
+        ItemStack bk = createItem(Material.TIPPED_ARROW,
+                FepEconomy.getMessagesCfg().getString("previousPage-name", "<gold>Previous Page"));
         ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         List<Transaction> transactions;
         SQLHelper sql = new SQLHelper();
@@ -60,12 +60,17 @@ public class PayHistory extends MenuManager {
             List<String> lore = FepEconomy.getMessagesCfg().getStringList("Transaction-Lore");
             String time = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date(transaction.timestamp()));
             for (int i = 0; i < lore.size(); i++) {
-                lore.set(i, ColorUtils.translateColorCodes(lore.get(i).replace("%amount%", econ.format(transaction.amount()))));
-                lore.set(i, ColorUtils.translateColorCodes(lore.get(i).replace("%sender%", String.valueOf(transaction.sender()))));
-                lore.set(i, ColorUtils.translateColorCodes(lore.get(i).replace("%receiver%", String.valueOf(transaction.receiver()))));
-                lore.set(i, ColorUtils.translateColorCodes(lore.get(i).replace("%status%", String.valueOf(transaction.status()))));
-                lore.set(i, ColorUtils.translateColorCodes(lore.get(i).replace("%time%", time)));
+                lore.set(i, lore.get(i).replace("%amount%", econ.format(transaction.amount())));
+                lore.set(i, lore.get(i).replace("%sender%", String.valueOf(transaction.sender())));
+                lore.set(i, lore.get(i).replace("%receiver%", String.valueOf(transaction.receiver())));
+                lore.set(i, lore.get(i).replace("%status%", String.valueOf(transaction.status())));
+                lore.set(i, lore.get(i).replace("%time%", time));
             }
+            List<Component> loreComponents = new ArrayList<>();
+            for (String line : lore) {
+                loreComponents.add(ColorUtils.deserialize(line));
+            }
+
             ItemStack t = new ItemStack(Material.PAPER);
             ItemMeta tMeta = t.getItemMeta();
             String name = FepEconomy.getMessagesCfg().getString("Transaction-name");
@@ -76,8 +81,8 @@ public class PayHistory extends MenuManager {
             name = name.replace("%receiver%", String.valueOf(transaction.receiver()));
             name = name.replace("%status%", String.valueOf(transaction.status()));
 
-            tMeta.setDisplayName(ColorUtils.translateColorCodes(name));
-            tMeta.setLore(lore);
+            tMeta.displayName(ColorUtils.deserialize(name));
+            tMeta.lore(loreComponents);
 
             t.setItemMeta(tMeta);
             if (id > 44) {

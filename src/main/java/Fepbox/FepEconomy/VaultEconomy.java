@@ -141,15 +141,15 @@ public class VaultEconomy implements Economy {
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
         if (amount < 0) {
             return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE,
-                    ColorUtils.translateColorCodes(messagesCfg.getString("no-balance", "&cYou cannot withdraw negative amount")));
+                    ColorUtils.toLegacy(messagesCfg.getString("no-balance", "<red>You cannot withdraw negative amount")));
         }
 
         double balance = getBalance(player);
 
         if (balance < amount) {
             return new EconomyResponse(0, balance, EconomyResponse.ResponseType.FAILURE,
-                    ColorUtils.translateColorCodes(messagesCfg.getString("insufficient-funds",
-                            "&cInsufficient funds")));
+                    ColorUtils.toLegacy(messagesCfg.getString("insufficient-funds",
+                            "<red>Insufficient funds")));
         }
 
         double newBalance = balance - amount;
@@ -162,8 +162,8 @@ public class VaultEconomy implements Economy {
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
         if (amount < 0) {
             return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE,
-                    ColorUtils.translateColorCodes(messagesCfg.getString("deposit-negative",
-                            "&cCannot deposit negative amount")));
+                    ColorUtils.toLegacy(messagesCfg.getString("deposit-negative",
+                            "<red>Cannot deposit negative amount")));
         }
 
         double balance = getBalance(player);

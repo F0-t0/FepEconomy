@@ -1,7 +1,6 @@
 package Fepbox.FepEconomy;
 
 import Fepbox.FepEconomy.Comands.*;
-import Fepbox.FepEconomy.CommandManager.CommandManager;
 import Fepbox.FepEconomy.Listeners.onJoinEvent;
 import Fepbox.FepEconomy.Listeners.onLeave;
 import Fepbox.FepEconomy.MenuManager.DataManger;
@@ -9,6 +8,7 @@ import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
 import Fepbox.FepEconomy.Utils.SQLHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.apache.logging.log4j.LogManager;
@@ -171,7 +171,11 @@ public final class FepEconomy extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new onLeave(), this);
         getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
         getCommand("bal").setExecutor(new balCommand());
-        getCommand("eco").setExecutor(new CommandManager());
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
+            CommandManager.register(plugin, commands.registrar());
+        });
+
         getCommand("pay").setExecutor(new payCommand());
         getCommand("togglepay").setExecutor(new togglePayCommand());
         getCommand("payhistory").setExecutor(new payHistoryCommand());
@@ -200,12 +204,12 @@ public final class FepEconomy extends JavaPlugin {
                              §6         | |                                           __/ |
                              §6         |_|                                          |___/\s
                             """);
-                    String newVer = checkUpdates("1.2");
+                    String newVer = checkUpdates("2.0");
                     String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
                     Bukkit.getConsoleSender().sendMessage("""
                             
                             §dAutor: §7Foto
-                            §dVersion: 1.2
+                            §dVersion: 2.0
                             
                             §dUpdate: 
                             """

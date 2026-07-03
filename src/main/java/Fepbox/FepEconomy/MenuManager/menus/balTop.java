@@ -5,6 +5,7 @@ import Fepbox.FepEconomy.MenuManager.DataManger;
 import Fepbox.FepEconomy.MenuManager.MenuManager;
 import Fepbox.FepEconomy.Utils.ColorUtils;
 import Fepbox.FepEconomy.Utils.SQLHelper;
+import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,9 +31,9 @@ public class balTop extends MenuManager {
 
     @Override
     public String getTitle() {
-        return ColorUtils.translateColorCodes(
+        return ColorUtils.toLegacy(
                 FepEconomy.getMessagesCfg().getString("balTop-Title",
-                        "&6BalTOP")
+                        "<gold>BalTOP")
         );
     }
 
@@ -45,12 +47,10 @@ public class balTop extends MenuManager {
         SQLHelper sql = new SQLHelper();
         Economy econ = FepEconomy.getPlugin().getVaultEconomy();
 
-        ItemStack it = createItem(Material.SPECTRAL_ARROW, ColorUtils.translateColorCodes(
-                FepEconomy.getMessagesCfg().getString("nextPage-name", "&6Next Page")
-        ));
-        ItemStack bk = createItem(Material.TIPPED_ARROW, ColorUtils.translateColorCodes(
-                FepEconomy.getMessagesCfg().getString("previousPage-name", "&6Next Page")
-        ));
+        ItemStack it = createItem(Material.SPECTRAL_ARROW,
+                FepEconomy.getMessagesCfg().getString("nextPage-name", "<gold>Next Page"));
+        ItemStack bk = createItem(Material.TIPPED_ARROW,
+                FepEconomy.getMessagesCfg().getString("previousPage-name", "<gold>Previous Page"));
         ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
 
         int offset = (page - 1) * 9;
@@ -95,21 +95,21 @@ public class balTop extends MenuManager {
                     sm.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
 
                     String name = FepEconomy.getMessagesCfg().getString("head-name",
-                            "&6%player%");
+                            "<white>%place%. <gold>%player%");
                     name = name.replace("%player%", Bukkit.getOfflinePlayer(uuid).getName());
                     name = name.replace("%place%", String.valueOf(place));
-                    meta.setDisplayName(ColorUtils.translateColorCodes(name));
+                    meta.displayName(ColorUtils.deserialize(name));
                     List<String> lore = FepEconomy.getMessagesCfg().getStringList("head-lore");
 
                     for (int i = 0; i < lore.size(); i++) {
-                        lore.set(i, ColorUtils.translateColorCodes(
-                                lore.get(i).replace("%bal%", econ.format(econ.getBalance(Bukkit.getOfflinePlayer(uuid))))
-                        ));
-                        lore.set(i, ColorUtils.translateColorCodes(
-                                lore.get(i).replace("%place%", String.valueOf(place))
-                        ));
+                        lore.set(i, lore.get(i).replace("%bal%", econ.format(econ.getBalance(Bukkit.getOfflinePlayer(uuid)))));
+                        lore.set(i, lore.get(i).replace("%place%", String.valueOf(place)));
                     }
-                    meta.setLore(lore);
+                    List<Component> loreComponents = new ArrayList<>();
+                    for (String line : lore) {
+                        loreComponents.add(ColorUtils.deserialize(line));
+                    }
+                    meta.lore(loreComponents);
                     item.setItemMeta(meta);
                     inventory.setItem(slots[idx], item);
                     place++;

@@ -21,14 +21,14 @@ public class togglePayCommand implements CommandExecutor {
                     PersistentDataType.BOOLEAN
             )) {
                 p.getPersistentDataContainer().set(FepEconomy.getKey(), PersistentDataType.BOOLEAN, false);
-                String msg = FepEconomy.getMessagesCfg().getString("turned-off",
-                        "&aSuccessfully &cturned off &apayments");
-                p.sendMessage(ColorUtils.translateColorCodes(msg));
+                p.sendMessage(ColorUtils.deserialize(
+                        FepEconomy.getMessagesCfg().getString("turned-off",
+                                "<green>Successfully <red>turned off <green>payments")));
             } else {
                 p.getPersistentDataContainer().set(FepEconomy.getKey(), PersistentDataType.BOOLEAN, true);
-                String msg = FepEconomy.getMessagesCfg().getString("turned-on",
-                        "&aSuccessfully turned on payments");
-                p.sendMessage(ColorUtils.translateColorCodes(msg));
+                p.sendMessage(ColorUtils.deserialize(
+                        FepEconomy.getMessagesCfg().getString("turned-on",
+                                "<green>Successfully turned on payments")));
             }
         }
 

@@ -1,8 +1,9 @@
 package Fepbox.FepEconomy.MenuManager;
 
 import Fepbox.FepEconomy.FepEconomy;
+import Fepbox.FepEconomy.Utils.ColorUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -12,8 +13,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class MenuManager implements InventoryHolder {
@@ -45,15 +48,12 @@ public abstract class MenuManager implements InventoryHolder {
         return inventory;
     }
 
-    public <T> ItemStack createItem(Material material, String displayname, HashMap<String, T> persistentData, String... lore) {
+    public <T> ItemStack createItem(Material material, Component displayname, HashMap<String, T> persistentData, Component... lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayname));
+        meta.displayName(displayname);
 
-        for (int i = 0; i < lore.length; i++) {
-            lore[i] = ChatColor.translateAlternateColorCodes('&', lore[i]);
-        }
-        meta.setLore(Arrays.asList(lore));
+        meta.lore(Arrays.asList(lore));
 
 
         for (Map.Entry<String, T> entry : persistentData.entrySet()) {
@@ -81,15 +81,27 @@ public abstract class MenuManager implements InventoryHolder {
         return item;
     }
 
-    protected <T> ItemStack createItem(Material material, String displayname, String... lore) {
+    protected ItemStack createItem(Material material, Component displayname, Component... lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayname));
+        meta.displayName(displayname);
 
-        for (int i = 0; i < lore.length; i++) {
-            lore[i] = ChatColor.translateAlternateColorCodes('&', lore[i]);
+        meta.lore(Arrays.asList(lore));
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
+    protected ItemStack createItem(Material material, String displayname, String... lore) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(ColorUtils.deserialize(displayname));
+
+        List<Component> loreComponents = new ArrayList<>();
+        for (String line : lore) {
+            loreComponents.add(ColorUtils.deserialize(line));
         }
-        meta.setLore(Arrays.asList(lore));
+        meta.lore(loreComponents);
         item.setItemMeta(meta);
 
         return item;

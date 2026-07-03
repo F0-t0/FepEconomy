@@ -1,5 +1,5 @@
 name: FepEconomy
-version: '1.2'
+version: '2.0'
 
 main: Fepbox.FepEconomy.FepEconomy
 api-version: '1.21'
@@ -13,8 +13,6 @@ libraries:
   - org.xerial:sqlite-jdbc:3.45.3.0
 
 commands:
-  eco:
-    permission: fepeconomy.admin
   bal:
     aliases:
       - balance
