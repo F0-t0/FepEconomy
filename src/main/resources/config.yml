@@ -6,9 +6,6 @@ symbol: $
 currency-name-singular: "dollar"
 currency-name-plural: "dollars"
 
-#The max amount of fetching per page for baltop players
-# Recommended: 20
-max-fetch: 20
 
 #Should it filter out warnings
 #From skins not loading

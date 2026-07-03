@@ -40,7 +40,7 @@ public class add extends SubCommand {
             return;
         }
         double amount = FepEconomy.parseAmount(args[2]);
-        if (amount < 0) {
+        if (Double.isNaN(amount)) {
             sender.sendMessage(ColorUtils.translateColorCodes(
                     FepEconomy.getMessagesCfg().getString("invalid-number", "&cInvalid number format")));
             return;

@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.lang.Double.NaN;
+
 public final class FepEconomy extends JavaPlugin {
 
     private static final HashMap<UUID, DataManger> DataManagerMap = new HashMap<>();
@@ -49,7 +51,6 @@ public final class FepEconomy extends JavaPlugin {
     private VaultEconomy vaultEconomy;
     private SQLHelper sql;
     private BukkitTask saveTask;
-
     private final String user = "F0-t0";
     private final String repo = "FepEconomy";
     private boolean isnewVersion;
@@ -100,7 +101,7 @@ public final class FepEconomy extends JavaPlugin {
         if (input == null || input.isEmpty()) {
             return -1;
         }
-        input = input.toUpperCase();
+        input = input.toUpperCase().trim().replace(',', '.');
         double multiplier = 1;
         char suffix = input.charAt(input.length() - 1);
         if (suffix == 'K') {
@@ -127,7 +128,7 @@ public final class FepEconomy extends JavaPlugin {
         try {
             return Double.parseDouble(input) * multiplier;
         } catch (NumberFormatException e) {
-            return -1;
+            return NaN;
         }
     }
 

@@ -53,15 +53,27 @@ public class balTop extends MenuManager {
         ));
         ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
 
-        int maxFetch = FepEconomy.getPlugin().getConfig().getInt("max-fetch", 100);
+        int offset = (page - 1) * 9;
         Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
-            List<UUID> uuids = sql.getTopPlayers((page - 1) * 9, maxFetch);
+            List<UUID> uuids = sql.getTopPlayers(offset, 9);
             uuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
-            int totalFiltered = uuids.size();
-            List<UUID> pageUuids = uuids.subList(0, Math.min(9, totalFiltered));
-            boolean hasNext = totalFiltered > 9;
+            while (uuids.size() < 9) {
+                List<UUID> newUuids = sql.getTopPlayers(offset + uuids.size(), 9 - uuids.size());
+                if (newUuids.size() < 9) {
+                    for (UUID uuid : newUuids) {
+                        uuids.add(uuid);
+                    }
+                    break;
+                }
+                newUuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
+                for (UUID uuid : newUuids) {
+                    uuids.add(uuid);
+                }
+            }
+            int total = uuids.size();
+            List<UUID> pageUuids = uuids.subList(0, Math.min(9, total));
             Bukkit.getScheduler().runTask(FepEconomy.getPlugin(), () -> {
-                if (hasNext) {
+                if (total == 9) {
                     inventory.setItem(50, it);
                 }
                 if (page != 1) {

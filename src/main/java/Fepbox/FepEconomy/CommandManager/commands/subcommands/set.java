@@ -3,7 +3,7 @@ package Fepbox.FepEconomy.CommandManager.commands.subcommands;
 import Fepbox.FepEconomy.CommandManager.SubCommand;
 import Fepbox.FepEconomy.FepEconomy;
 import Fepbox.FepEconomy.Utils.ColorUtils;
-import net.milkbowl.vault.economy.Economy;
+import Fepbox.FepEconomy.VaultEconomy;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
@@ -31,7 +31,7 @@ public class set extends SubCommand {
                     "&cNot enough arguments")));
             return;
         }
-        Economy econ = FepEconomy.getPlugin().getVaultEconomy();
+        VaultEconomy econ = FepEconomy.getPlugin().getVaultEconomy();
         OfflinePlayer target = FepEconomy.getOfflinePlayerByName(args[1]);
         if (!econ.hasAccount(target)) {
             sender.sendMessage(ColorUtils.translateColorCodes(
@@ -40,14 +40,12 @@ public class set extends SubCommand {
             return;
         }
         double amount = FepEconomy.parseAmount(args[2]);
-        if (amount < 0) {
+        if (Double.isNaN(amount)) {
             sender.sendMessage(ColorUtils.translateColorCodes(
                     FepEconomy.getMessagesCfg().getString("invalid-number", "&cInvalid number format")));
             return;
         }
-        double current = econ.getBalance(target);
-        econ.withdrawPlayer(target, current);
-        econ.depositPlayer(target, amount);
+        econ.setBalance(target, amount);
 
         String msg = FepEconomy.getMessagesCfg().getString("set",
                 "&aSet %player%'s balance to %amount%");

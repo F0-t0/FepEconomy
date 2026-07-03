@@ -35,7 +35,9 @@ public class VaultEconomy implements Economy {
         this.cacheSymbol = config.getString("symbol", "$");
         this.cacheUseSymbol = config.getBoolean("use-symbol");
         File oldCache = new File(FepEconomy.getPlugin().getDataFolder(), "cache.yml");
-        if (oldCache.exists()) oldCache.delete();
+        if (oldCache.exists()) {
+            oldCache.delete();
+        }
     }
 
     public void removeFromHashMap(OfflinePlayer player) {
@@ -103,7 +105,9 @@ public class VaultEconomy implements Economy {
     public boolean hasAccount(OfflinePlayer player) {
         if (!balances.containsKey(player.getUniqueId())) {
             Connection conn = FepEconomy.getPlugin().getConnection();
-            if (conn == null) return false;
+            if (conn == null) {
+                return false;
+            }
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT * FROM accounts WHERE uuid = ?"
             )) {
@@ -176,7 +180,9 @@ public class VaultEconomy implements Economy {
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer player) {
-        if (hasAccount(player)) return false;
+        if (hasAccount(player)) {
+            return false;
+        }
         balances.put(player.getUniqueId(), FepEconomy.getPlugin().getConfig().getDouble(
                 "start-amount", 50.0));
         SQLHelper helper = new SQLHelper();
