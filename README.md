@@ -1,6 +1,4 @@
-<p align="center">
-  <img alt="image" src="https://cdn.discordapp.com/attachments/1358719974629445733/1519354972716794080/FepEconomy.png?ex=6a3d4115&amp;is=6a3bef95&amp;hm=5a529108e0b0465b31db2211a6dd0d9624a916914b9b1cc86ba6d7f4d026918b&amp;" />
-</p>
+![logo](https://cdn.modrinth.com/data/cached_images/69e84bdf9db4beb83098a82163f0dbdd7b41d978.png)
 
 <p align="center">
   <img alt="Custom badge" src="https://shieldcn.dev/badge/JAVA-21-22c55e.svg?theme=orange&logo=ri%3AFaJava).svg?theme=gray&amp;logo=ri%3AFaJava&amp;label=Java" />
@@ -11,9 +9,8 @@
 
 **FepEconomy** is a minecraft Plugin that implements Vault economy
 
-<p align="center">
-  <img alt="image" src="https://cdn.discordapp.com/attachments/1358719974629445733/1519429153869533425/FepEconomyPoster.png?ex=6a3d862b&is=6a3c34ab&hm=eae3aae690829a76abe02f5003f61104c89ba75a77e02344202125a554295afa&amp;" />
-</p>
+![poster](https://cdn.modrinth.com/data/cached_images/88c1ba6db5c04961ea1aa2d0affa6245e21ef523.png)
+
 
 ## Permissions:
 
@@ -39,7 +36,6 @@
 
 ## Config.yml
 ```
-
 #Should the plugin use a symbol for the currency
 #or the name plular/singular
 use-symbol: false
@@ -48,9 +44,9 @@ symbol: $
 currency-name-singular: "dollar"
 currency-name-plural: "dollars"
 
-#The max amount of fetching for baltop players
-# Recommended: 50
-max-fetch: 50
+#The max amount of fetching per page for baltop players
+# Recommended: 20
+max-fetch: 20
 
 #The maximum amount of transactions saved per player
 # Recommended: 20-150
@@ -62,7 +58,6 @@ autosave: 30
 
 #The amount of money for the player to start with
 start-amount: 50
-
 ```
 
 ## Messages.yml
@@ -137,3 +132,4 @@ head-lore:
   - ""
   - "&7- &f&lBalance: &b&l%bal%"
 ```
+
