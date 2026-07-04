@@ -204,12 +204,12 @@ public final class FepEconomy extends JavaPlugin {
                              §6         | |                                           __/ |
                              §6         |_|                                          |___/\s
                             """);
-                    String newVer = checkUpdates("2.0");
+                    String newVer = checkUpdates("2.1");
                     String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
                     Bukkit.getConsoleSender().sendMessage("""
                             
                             §dAutor: §7Foto
-                            §dVersion: 2.0
+                            §dVersion: 2.1
                             
                             §dUpdate: 
                             """
