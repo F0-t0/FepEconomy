@@ -56,19 +56,16 @@ public class balTop extends MenuManager {
         int offset = (page - 1) * 9;
         Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
             List<UUID> uuids = sql.getTopPlayers(offset, 9);
+            int fetched = uuids.size();
             uuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
             while (uuids.size() < 9) {
-                List<UUID> newUuids = sql.getTopPlayers(offset + uuids.size(), 9 - uuids.size());
-                if (newUuids.size() < 9) {
-                    for (UUID uuid : newUuids) {
-                        uuids.add(uuid);
-                    }
+                List<UUID> newUuids = sql.getTopPlayers(offset + fetched, 9 - uuids.size());
+                if (newUuids.isEmpty()) {
+                    uuids.removeLast();
                     break;
                 }
                 newUuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
-                for (UUID uuid : newUuids) {
-                    uuids.add(uuid);
-                }
+                uuids.addAll(newUuids);
             }
             int total = uuids.size();
             List<UUID> pageUuids = uuids.subList(0, Math.min(9, total));
