@@ -81,6 +81,24 @@ public class SQLHelper {
         return null;
     }
 
+    public String getNamebyUUID(UUID uuid) {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        if (con == null) {
+            return null;
+        }
+        try (PreparedStatement ps = con.prepareStatement("SELECT name FROM accounts WHERE uuid = ? COLLATE NOCASE LIMIT 1")) {
+            ps.setString(1, uuid.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("name");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     public void saveTransaction(UUID playerUUID, double amount, String sender, String receiver, String status, long timestamp) {
         Connection con = FepEconomy.getPlugin().getConnection();
         try (PreparedStatement ps = con.prepareStatement(

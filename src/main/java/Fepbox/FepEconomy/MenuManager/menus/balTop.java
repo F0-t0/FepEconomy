@@ -79,7 +79,7 @@ public class balTop extends MenuManager {
 
                     String name = FepEconomy.getMessagesCfg().getString("head-name",
                             "<white>%place%. <gold>%player%");
-                    name = name.replace("%player%", Bukkit.getOfflinePlayer(uuid).getName());
+                    name = name.replace("%player%", sql.getNamebyUUID(uuid));
                     name = name.replace("%place%", String.valueOf(place));
                     meta.displayName(ColorUtils.deserialize(name));
                     List<String> lore = FepEconomy.getMessagesCfg().getStringList("head-lore");
