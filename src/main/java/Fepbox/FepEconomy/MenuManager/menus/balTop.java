@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
@@ -55,22 +54,11 @@ public class balTop extends MenuManager {
 
         int offset = (page - 1) * 9;
         Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
-            List<UUID> uuids = sql.getTopPlayers(offset, 9);
-            int fetched = uuids.size();
-            uuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
-            while (uuids.size() < 9) {
-                List<UUID> newUuids = sql.getTopPlayers(offset + fetched, 9 - uuids.size());
-                if (newUuids.isEmpty()) {
-                    uuids.removeLast();
-                    break;
-                }
-                newUuids.removeIf(uuid -> FepEconomy.hasOfflinePermission(Bukkit.getOfflinePlayer(uuid), "FepEconomy.baltop.exempt"));
-                uuids.addAll(newUuids);
-            }
-            int total = uuids.size();
-            List<UUID> pageUuids = uuids.subList(0, Math.min(9, total));
+            List<UUID> uuids = sql.getTopPlayers(offset, 10);
+            boolean hasNext = uuids.size() > 9;
+            List<UUID> pageUuids = uuids.subList(0, Math.min(9, uuids.size()));
             Bukkit.getScheduler().runTask(FepEconomy.getPlugin(), () -> {
-                if (total == 9) {
+                if (hasNext) {
                     inventory.setItem(50, it);
                 }
                 if (page != 1) {
@@ -85,11 +73,9 @@ public class balTop extends MenuManager {
                 int idx = 0;
                 for (UUID uuid : pageUuids) {
                     ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-                    ItemMeta meta = item.getItemMeta();
+                    SkullMeta meta = (SkullMeta) item.getItemMeta();
 
-                    SkullMeta sm = (SkullMeta) meta;
-
-                    sm.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
+                    meta.setPlayerProfile(Bukkit.createProfile(uuid));
 
                     String name = FepEconomy.getMessagesCfg().getString("head-name",
                             "<white>%place%. <gold>%player%");

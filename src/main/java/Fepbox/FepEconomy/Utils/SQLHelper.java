@@ -24,11 +24,22 @@ public class SQLHelper {
         double bal = econ.getBalance(player);
         String name = player.getName();
         Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("INSERT OR REPLACE INTO accounts (uuid, name, balance) VALUES (?, ?, ?)")) {
-            ps.setString(1, player.getUniqueId().toString());
-            ps.setString(2, name);
-            ps.setDouble(3, bal);
+        try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET name = ?, balance = ? WHERE uuid = ?")) {
+            ps.setString(1, name);
+            ps.setDouble(2, bal);
+            ps.setString(3, player.getUniqueId().toString());
             ps.executeUpdate();
+        }
+    }
+
+    public void updateExemptStatus(UUID uuid, boolean exempt) {
+        Connection con = FepEconomy.getPlugin().getConnection();
+        try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET exempt = ? WHERE uuid = ?")) {
+            ps.setInt(1, exempt ? 1 : 0);
+            ps.setString(2, uuid.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -159,7 +170,7 @@ public class SQLHelper {
         Connection con = FepEconomy.getPlugin().getConnection();
         List<UUID> uuids = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(
-                "SELECT uuid FROM accounts ORDER BY balance DESC LIMIT ? OFFSET ?"
+                "SELECT uuid FROM accounts WHERE exempt = 0 ORDER BY balance DESC LIMIT ? OFFSET ?"
         )) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);

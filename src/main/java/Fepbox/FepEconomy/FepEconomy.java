@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -75,14 +74,6 @@ public final class FepEconomy extends JavaPlugin {
         }
 
         return player;
-    }
-
-    public static boolean hasOfflinePermission(OfflinePlayer player, String permission) {
-        var rsp = Bukkit.getServicesManager().getRegistration(Permission.class);
-        if (rsp == null) {
-            return false;
-        }
-        return rsp.getProvider().playerHas(null, player, permission);
     }
 
     public static DataManger getDataManger(Player p) {
@@ -156,10 +147,14 @@ public final class FepEconomy extends JavaPlugin {
             this.connection = DriverManager.getConnection(dbUrl);
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute(
-                        "CREATE TABLE IF NOT EXISTS accounts (uuid TEXT PRIMARY KEY, name TEXT, balance DOUBLE DEFAULT 0)");
+                        "CREATE TABLE IF NOT EXISTS accounts (uuid TEXT PRIMARY KEY, name TEXT, balance DOUBLE DEFAULT 0, exempt INTEGER DEFAULT 0)");
                 stmt.execute(
                         "CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, player_uuid TEXT NOT NULL, amount DOUBLE NOT NULL, sender TEXT NOT NULL, receiver TEXT NOT NULL, status TEXT NOT NULL, timestamp BIGINT NOT NULL)"
                 );
+            }
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("ALTER TABLE accounts ADD COLUMN exempt INTEGER DEFAULT 0");
+            } catch (Exception ignored) {
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -204,12 +199,12 @@ public final class FepEconomy extends JavaPlugin {
                              §6         | |                                           __/ |
                              §6         |_|                                          |___/\s
                             """);
-                    String newVer = checkUpdates("2.1");
+                    String newVer = checkUpdates("2.2");
                     String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
                     Bukkit.getConsoleSender().sendMessage("""
                             
                             §dAutor: §7Foto
-                            §dVersion: 2.1
+                            §dVersion: 2.2
                             
                             §dUpdate: 
                             """

@@ -24,6 +24,8 @@ public class onJoinEvent implements Listener {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
+            boolean exempt = e.getPlayer().hasPermission("FepEconomy.baltop.exempt") || e.getPlayer().isOp();
+            sql.updateExemptStatus(e.getPlayer().getUniqueId(), exempt);
         });
     }
 }
