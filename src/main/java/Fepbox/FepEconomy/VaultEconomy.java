@@ -86,9 +86,9 @@ public class VaultEconomy implements Economy {
             suffix = "K";
         }
         if (cacheUseSymbol) {
-            return String.format("%s%.0f%s", cacheSymbol, amount, suffix);
+            return String.format("%s%.1f%s", cacheSymbol, amount, suffix);
         }
-        return String.format("%.0f%s %s", amount, suffix, amount == 1 ? currencyNameSingular() : currencyNamePlural());
+        return String.format("%.1f%s %s", amount, suffix, amount == 1 ? currencyNameSingular() : currencyNamePlural());
     }
 
     @Override
@@ -109,8 +109,7 @@ public class VaultEconomy implements Economy {
                 return false;
             }
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT * FROM accounts WHERE uuid = ?"
-            )) {
+                    "SELECT * FROM accounts WHERE uuid = ?")) {
                 ps.setString(1, player.getUniqueId().toString());
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
@@ -141,7 +140,8 @@ public class VaultEconomy implements Economy {
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
         if (amount < 0) {
             return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE,
-                    ColorUtils.toLegacy(messagesCfg.getString("no-balance", "<red>You cannot withdraw negative amount")));
+                    ColorUtils
+                            .toLegacy(messagesCfg.getString("no-balance", "<red>You cannot withdraw negative amount")));
         }
 
         double balance = getBalance(player);
