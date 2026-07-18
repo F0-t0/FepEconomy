@@ -29,6 +29,8 @@ logs/
 
 ### RUN ###
 run
+bin
+.settings
 gradle
 gradle.properties
 .gradle
