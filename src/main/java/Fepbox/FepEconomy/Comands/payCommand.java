@@ -40,11 +40,15 @@ public class payCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ColorUtils.deserialize(cy));
             return true;
         }
-        if (!Bukkit.getPlayer(args[0]).getPersistentDataContainer().has(FepEconomy.getKey(), PersistentDataType.BOOLEAN)) {
-            Bukkit.getPlayer(args[0]).getPersistentDataContainer().set(FepEconomy.getKey(), PersistentDataType.BOOLEAN, true);
+        if (!Bukkit.getPlayer(args[0]).getPersistentDataContainer().has(FepEconomy.getKey(),
+                PersistentDataType.BOOLEAN)) {
+            Bukkit.getPlayer(args[0]).getPersistentDataContainer().set(FepEconomy.getKey(), PersistentDataType.BOOLEAN,
+                    true);
         }
-        if (!Bukkit.getPlayer(args[0]).getPersistentDataContainer().get(FepEconomy.getKey(), PersistentDataType.BOOLEAN)) {
-            String to = FepEconomy.getMessagesCfg().getString("player-turned-off-payments", "<red>%receiver% has turned off payments");
+        if (!Bukkit.getPlayer(args[0]).getPersistentDataContainer().get(FepEconomy.getKey(),
+                PersistentDataType.BOOLEAN)) {
+            String to = FepEconomy.getMessagesCfg().getString("player-turned-off-payments",
+                    "<red>%receiver% has turned off payments");
             to = to.replace("%receiver%", args[0]);
             sender.sendMessage(ColorUtils.deserialize(to));
 
@@ -52,21 +56,24 @@ public class payCommand implements CommandExecutor, TabCompleter {
         }
 
         double amount = FepEconomy.parseAmount(args[1]);
-
+        if (Double.isNaN(amount)) {
+            String message = FepEconomy.getMessagesCfg().getString("invalid-number", "<red>Invalid number format");
+            sender.sendMessage(ColorUtils.deserialize(message));
+            return true;
+        }
         Economy econ = FepEconomy.getPlugin().getVaultEconomy();
 
         if (amount > econ.getBalance((OfflinePlayer) sender)) {
-            sender.sendMessage(ColorUtils.deserialize(FepEconomy.getMessagesCfg().getString("insufficient-funds", "<red>Insufficient funds")));
+            sender.sendMessage(ColorUtils.deserialize(
+                    FepEconomy.getMessagesCfg().getString("insufficient-funds", "<red>Insufficient funds")));
             return true;
         }
 
         if (amount == -1) {
             sender.sendMessage(ColorUtils.deserialize(
-                    FepEconomy.getMessagesCfg().getString("invalid-number", "<red>Invalid number format")
-            ));
+                    FepEconomy.getMessagesCfg().getString("invalid-number", "<red>Invalid number format")));
             return true;
         }
-
 
         econ.withdrawPlayer((OfflinePlayer) sender, amount);
         econ.depositPlayer((OfflinePlayer) Bukkit.getPlayer(args[0]), amount);
@@ -102,7 +109,6 @@ public class payCommand implements CommandExecutor, TabCompleter {
                     statusR,
                     System.currentTimeMillis());
         });
-
 
         return true;
     }

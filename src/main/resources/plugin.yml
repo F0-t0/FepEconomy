@@ -1,5 +1,5 @@
 name: FepEconomy
-version: '2.2'
+version: '2.3'
 
 main: Fepbox.FepEconomy.FepEconomy
 api-version: '1.21'
