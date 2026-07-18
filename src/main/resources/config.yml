@@ -6,6 +6,13 @@ symbol: $
 currency-name-singular: "dollar"
 currency-name-plural: "dollars"
 
+formatting:
+  thousand: "k"
+  million: "M"
+  billion: "B"
+  trillion: "T"
+  quadrillion: "Q"
+  quintillion: "Qi"
 
 #Should it filter out warnings
 #From skins not loading

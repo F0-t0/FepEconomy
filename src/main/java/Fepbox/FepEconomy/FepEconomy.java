@@ -1,29 +1,6 @@
 package Fepbox.FepEconomy;
 
-import Fepbox.FepEconomy.Comands.*;
-import Fepbox.FepEconomy.Listeners.onJoinEvent;
-import Fepbox.FepEconomy.Listeners.onLeave;
-import Fepbox.FepEconomy.MenuManager.DataManger;
-import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
-import Fepbox.FepEconomy.Utils.SQLHelper;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import net.milkbowl.vault.economy.Economy;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.filter.RegexFilter;
-import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.ServicePriority;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
+import static java.lang.Double.NaN;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -37,7 +14,38 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.lang.Double.NaN;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.filter.RegexFilter;
+import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import Fepbox.FepEconomy.Comands.CommandManager;
+import Fepbox.FepEconomy.Comands.balCommand;
+import Fepbox.FepEconomy.Comands.balTopCommand;
+import Fepbox.FepEconomy.Comands.payCommand;
+import Fepbox.FepEconomy.Comands.payHistoryCommand;
+import Fepbox.FepEconomy.Comands.togglePayCommand;
+import Fepbox.FepEconomy.Listeners.onJoinEvent;
+import Fepbox.FepEconomy.Listeners.onLeave;
+import Fepbox.FepEconomy.MenuManager.DataManger;
+import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
+import Fepbox.FepEconomy.Utils.SQLHelper;
+import Fepbox.FepEconomy.Utils.Scheduler;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import net.milkbowl.vault.economy.Economy;
 
 public final class FepEconomy extends JavaPlugin {
 
@@ -49,14 +57,22 @@ public final class FepEconomy extends JavaPlugin {
     private String dbUrl;
     private VaultEconomy vaultEconomy;
     private SQLHelper sql;
-    private BukkitTask saveTask;
+    private ScheduledTask saveTask;
     private final String user = "F0-t0";
     private final String repo = "FepEconomy";
     private boolean isnewVersion;
 
-
     public static FepEconomy getPlugin() {
         return plugin;
+    }
+
+    public boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public static OfflinePlayer getOfflinePlayerByName(String name) {
@@ -92,30 +108,32 @@ public final class FepEconomy extends JavaPlugin {
         if (input == null || input.isEmpty()) {
             return -1;
         }
-        input = input.toUpperCase().trim().replace(',', '.');
+        input = input.trim().replace(',', '.');
+        FileConfiguration config = getPlugin().getConfig();
+
+        String[] suffixes = {
+                config.getString("formatting.quintillion", "Qi"),
+                config.getString("formatting.quadrillion", "Q"),
+                config.getString("formatting.trillion", "T"),
+                config.getString("formatting.billion", "B"),
+                config.getString("formatting.million", "M"),
+                config.getString("formatting.thousand", "k")
+        };
+        double[] multipliers = { 1e18, 1e15, 1e12, 1e9, 1e6, 1e3 };
+
         double multiplier = 1;
-        char suffix = input.charAt(input.length() - 1);
-        if (suffix == 'K') {
-            multiplier = 1e3;
-            input = input.substring(0, input.length() - 1);
-        } else if (suffix == 'M') {
-            multiplier = 1e6;
-            input = input.substring(0, input.length() - 1);
-        } else if (suffix == 'B') {
-            multiplier = 1e9;
-            input = input.substring(0, input.length() - 1);
-        } else if (suffix == 'T') {
-            multiplier = 1e12;
-            input = input.substring(0, input.length() - 1);
-        } else if (suffix == 'Q') {
-            if (input.endsWith("QI")) {
-                multiplier = 1e18;
-                input = input.substring(0, input.length() - 2);
-            } else {
-                multiplier = 1e15;
-                input = input.substring(0, input.length() - 1);
+        for (int i = 0; i < suffixes.length; i++) {
+            String suffix = suffixes[i];
+            if (suffix == null || suffix.isEmpty() || suffix.length() > input.length()) {
+                continue;
+            }
+            if (input.regionMatches(true, input.length() - suffix.length(), suffix, 0, suffix.length())) {
+                multiplier = multipliers[i];
+                input = input.substring(0, input.length() - suffix.length()).trim();
+                break;
             }
         }
+
         try {
             return Double.parseDouble(input) * multiplier;
         } catch (NumberFormatException e) {
@@ -149,8 +167,7 @@ public final class FepEconomy extends JavaPlugin {
                 stmt.execute(
                         "CREATE TABLE IF NOT EXISTS accounts (uuid TEXT PRIMARY KEY, name TEXT, balance DOUBLE DEFAULT 0, exempt INTEGER DEFAULT 0)");
                 stmt.execute(
-                        "CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, player_uuid TEXT NOT NULL, amount DOUBLE NOT NULL, sender TEXT NOT NULL, receiver TEXT NOT NULL, status TEXT NOT NULL, timestamp BIGINT NOT NULL)"
-                );
+                        "CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, player_uuid TEXT NOT NULL, amount DOUBLE NOT NULL, sender TEXT NOT NULL, receiver TEXT NOT NULL, status TEXT NOT NULL, timestamp BIGINT NOT NULL)");
             }
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute("ALTER TABLE accounts ADD COLUMN exempt INTEGER DEFAULT 0");
@@ -187,7 +204,7 @@ public final class FepEconomy extends JavaPlugin {
         }
 
         startSaveTask();
-        Bukkit.getScheduler().runTaskLater(plugin,
+        Scheduler.runLater(
                 () -> {
                     Bukkit.getConsoleSender().sendMessage("""
                              §6 ______         ______                                     \s
@@ -202,22 +219,21 @@ public final class FepEconomy extends JavaPlugin {
                     String newVer = checkUpdates("2.3");
                     String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
                     Bukkit.getConsoleSender().sendMessage("""
-                            
+
                             §dAutor: §7Foto
                             §dVersion: 2.3
-                            
-                            §dUpdate: 
+
+                            §dUpdate:
                             """
                             + newUpdate);
-                }, 400L);
+                }, 300L);
 
     }
 
     private String checkUpdates(String ver) {
         try {
             URL url = new URL(
-                    "https://api.github.com/repos/" + user + "/" + repo + "/releases/latest"
-            );
+                    "https://api.github.com/repos/" + user + "/" + repo + "/releases/latest");
 
             JsonObject json = JsonParser
                     .parseReader(new InputStreamReader(url.openStream()))
@@ -282,7 +298,7 @@ public final class FepEconomy extends JavaPlugin {
     }
 
     private void startSaveTask() {
-        this.saveTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+        this.saveTask = Scheduler.runAsyncTimer(() -> {
             Set<UUID> dirty = vaultEconomy.getDirty();
             if (dirty.isEmpty()) {
                 return;
@@ -311,7 +327,6 @@ public final class FepEconomy extends JavaPlugin {
         startSaveTask();
     }
 
-
     private void filterErrors() {
         try {
             LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
@@ -322,8 +337,7 @@ public final class FepEconomy extends JavaPlugin {
                     null,
                     false,
                     RegexFilter.Result.DENY,
-                    RegexFilter.Result.NEUTRAL
-            );
+                    RegexFilter.Result.NEUTRAL);
             filter.start();
             config.getRootLogger().addFilter(filter);
             ctx.updateLoggers();

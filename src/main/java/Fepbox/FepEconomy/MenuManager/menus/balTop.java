@@ -1,21 +1,23 @@
 package Fepbox.FepEconomy.MenuManager.menus;
 
-import Fepbox.FepEconomy.FepEconomy;
-import Fepbox.FepEconomy.MenuManager.DataManger;
-import Fepbox.FepEconomy.MenuManager.MenuManager;
-import Fepbox.FepEconomy.Utils.ColorUtils;
-import Fepbox.FepEconomy.Utils.SQLHelper;
-import net.kyori.adventure.text.Component;
-import net.milkbowl.vault.economy.Economy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import Fepbox.FepEconomy.FepEconomy;
+import Fepbox.FepEconomy.MenuManager.DataManger;
+import Fepbox.FepEconomy.MenuManager.MenuManager;
+import Fepbox.FepEconomy.Utils.ColorUtils;
+import Fepbox.FepEconomy.Utils.SQLHelper;
+import Fepbox.FepEconomy.Utils.Scheduler;
+import net.kyori.adventure.text.Component;
+import net.milkbowl.vault.economy.Economy;
 
 public class balTop extends MenuManager {
     private int page = 1;
@@ -32,8 +34,7 @@ public class balTop extends MenuManager {
     public String getTitle() {
         return ColorUtils.toLegacy(
                 FepEconomy.getMessagesCfg().getString("balTop-Title",
-                        "<gold>BalTOP")
-        );
+                        "<gold>BalTOP"));
     }
 
     @Override
@@ -53,11 +54,11 @@ public class balTop extends MenuManager {
         ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
 
         int offset = (page - 1) * 9;
-        Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
+        Scheduler.runAsync(() -> {
             List<UUID> uuids = sql.getTopPlayers(offset, 10);
             boolean hasNext = uuids.size() > 9;
             List<UUID> pageUuids = uuids.subList(0, Math.min(9, uuids.size()));
-            Bukkit.getScheduler().runTask(FepEconomy.getPlugin(), () -> {
+            Scheduler.runSync(() -> {
                 if (hasNext) {
                     inventory.setItem(50, it);
                 }
@@ -85,7 +86,8 @@ public class balTop extends MenuManager {
                     List<String> lore = FepEconomy.getMessagesCfg().getStringList("head-lore");
 
                     for (int i = 0; i < lore.size(); i++) {
-                        lore.set(i, lore.get(i).replace("%bal%", econ.format(econ.getBalance(Bukkit.getOfflinePlayer(uuid)))));
+                        lore.set(i, lore.get(i).replace("%bal%",
+                                econ.format(econ.getBalance(Bukkit.getOfflinePlayer(uuid)))));
                         lore.set(i, lore.get(i).replace("%place%", String.valueOf(place)));
                     }
                     List<Component> loreComponents = new ArrayList<>();

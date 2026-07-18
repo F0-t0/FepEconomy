@@ -1,10 +1,8 @@
 package Fepbox.FepEconomy.Comands;
 
-import Fepbox.FepEconomy.FepEconomy;
-import Fepbox.FepEconomy.Utils.ColorUtils;
-import Fepbox.FepEconomy.Utils.SQLHelper;
-import net.kyori.adventure.text.Component;
-import net.milkbowl.vault.economy.Economy;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -14,8 +12,11 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.List;
+import Fepbox.FepEconomy.FepEconomy;
+import Fepbox.FepEconomy.Utils.ColorUtils;
+import Fepbox.FepEconomy.Utils.SQLHelper;
+import Fepbox.FepEconomy.Utils.Scheduler;
+import net.milkbowl.vault.economy.Economy;
 
 public class payCommand implements CommandExecutor, TabCompleter {
     @Override
@@ -95,7 +96,7 @@ public class payCommand implements CommandExecutor, TabCompleter {
         String statusR = FepEconomy.getMessagesCfg().getString("status-received");
         String statusS = FepEconomy.getMessagesCfg().getString("status-sent");
 
-        Bukkit.getScheduler().runTaskAsynchronously(FepEconomy.getPlugin(), () -> {
+        Scheduler.runAsync(() -> {
             sql.saveTransaction(p.getUniqueId(),
                     amount,
                     p.getName(),

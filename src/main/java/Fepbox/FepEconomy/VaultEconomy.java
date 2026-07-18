@@ -24,6 +24,13 @@ public class VaultEconomy implements Economy {
     private String cacheSymbol;
     private boolean cacheUseSymbol;
 
+    private String thousandSuffix;
+    private String millionSuffix;
+    private String billionSuffix;
+    private String trillionSuffix;
+    private String quadrillionSuffix;
+    private String quintillionSuffix;
+
     public Set<UUID> getDirty() {
         return dirty;
     }
@@ -38,6 +45,12 @@ public class VaultEconomy implements Economy {
         if (oldCache.exists()) {
             oldCache.delete();
         }
+        this.thousandSuffix = config.getString("formatting.thousand", "k");
+        this.millionSuffix = config.getString("formatting.million", "M");
+        this.billionSuffix = config.getString("formatting.billion", "B");
+        this.trillionSuffix = config.getString("formatting.trillion", "T");
+        this.quadrillionSuffix = config.getString("formatting.quadrillion", "Q");
+        this.quintillionSuffix = config.getString("formatting.quintillion", "Qi");
     }
 
     public void removeFromHashMap(OfflinePlayer player) {
@@ -68,22 +81,22 @@ public class VaultEconomy implements Economy {
         String suffix = "";
         if (amount >= 1e18) {
             amount /= 1e18;
-            suffix = "Qi";
+            suffix = quintillionSuffix;
         } else if (amount >= 1e15) {
             amount /= 1e15;
-            suffix = "Q";
+            suffix = quadrillionSuffix;
         } else if (amount >= 1e12) {
             amount /= 1e12;
-            suffix = "T";
+            suffix = trillionSuffix;
         } else if (amount >= 1e9) {
             amount /= 1e9;
-            suffix = "B";
+            suffix = billionSuffix;
         } else if (amount >= 1e6) {
             amount /= 1e6;
-            suffix = "M";
+            suffix = millionSuffix;
         } else if (amount >= 1e3) {
             amount /= 1e3;
-            suffix = "K";
+            suffix = thousandSuffix;
         }
         if (cacheUseSymbol) {
             return String.format("%s%.1f%s", cacheSymbol, amount, suffix);
