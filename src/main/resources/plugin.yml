@@ -1,5 +1,5 @@
 name: FepEconomy
-version: "2.3"
+version: "3.0"
 
 main: Fepbox.FepEconomy.FepEconomy
 api-version: "1.21"
@@ -8,8 +8,8 @@ folia-supported: true
 
 load: STARTUP
 
-authors: [_F0to]
-depend: [Vault]
+authors: [ _F0to ]
+depend: [ Vault ]
 
 libraries:
   - org.xerial:sqlite-jdbc:3.45.3.0

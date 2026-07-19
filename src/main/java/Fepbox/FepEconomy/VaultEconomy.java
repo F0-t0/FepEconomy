@@ -1,6 +1,7 @@
 package Fepbox.FepEconomy;
 
 import Fepbox.FepEconomy.Utils.ColorUtils;
+import Fepbox.FepEconomy.Utils.Database;
 import Fepbox.FepEconomy.Utils.SQLHelper;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -8,16 +9,20 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class VaultEconomy implements Economy {
 
-    private final Map<UUID, Double> balances = new HashMap<>();
-    private static Set<UUID> dirty = new HashSet<>();
+    private final Map<UUID, Double> balances = new ConcurrentHashMap<>();
+    private final Set<UUID> dirty = ConcurrentHashMap.newKeySet();
     private FileConfiguration messagesCfg = FepEconomy.getMessagesCfg();
     private String cacheSingular;
     private String cachePlural;
@@ -33,6 +38,13 @@ public class VaultEconomy implements Economy {
 
     public Set<UUID> getDirty() {
         return dirty;
+    }
+
+    public Set<UUID> drainDirty() {
+        Set<UUID> snapshot = ConcurrentHashMap.newKeySet();
+        snapshot.addAll(dirty);
+        dirty.removeAll(snapshot);
+        return snapshot;
     }
 
     public void loadCache() {
@@ -116,24 +128,33 @@ public class VaultEconomy implements Economy {
 
     @Override
     public boolean hasAccount(OfflinePlayer player) {
-        if (!balances.containsKey(player.getUniqueId())) {
-            Connection conn = FepEconomy.getPlugin().getConnection();
-            if (conn == null) {
-                return false;
-            }
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT * FROM accounts WHERE uuid = ?")) {
-                ps.setString(1, player.getUniqueId().toString());
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    balances.put(player.getUniqueId(), rs.getDouble("balance"));
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-
+        UUID uuid = player.getUniqueId();
+        if (balances.containsKey(uuid)) {
+            return true;
         }
-        return balances.containsKey(player.getUniqueId());
+        try {
+            Double loaded = Database.call(con -> {
+                if (con == null) {
+                    return null;
+                }
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT balance FROM accounts WHERE uuid = ?")) {
+                    ps.setString(1, uuid.toString());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getDouble("balance");
+                        }
+                    }
+                }
+                return null;
+            });
+            if (loaded != null) {
+                balances.putIfAbsent(uuid, loaded);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return balances.containsKey(uuid);
     }
 
     @Override
@@ -157,18 +178,29 @@ public class VaultEconomy implements Economy {
                             .toLegacy(messagesCfg.getString("no-balance", "<red>You cannot withdraw negative amount")));
         }
 
-        double balance = getBalance(player);
+        UUID uuid = player.getUniqueId();
+        hasAccount(player);
 
-        if (balance < amount) {
-            return new EconomyResponse(0, balance, EconomyResponse.ResponseType.FAILURE,
-                    ColorUtils.toLegacy(messagesCfg.getString("insufficient-funds",
-                            "<red>Insufficient funds")));
-        }
-
-        double newBalance = balance - amount;
-        balances.put(player.getUniqueId(), newBalance);
-        dirty.add(player.getUniqueId());
-        return new EconomyResponse(amount, newBalance, EconomyResponse.ResponseType.SUCCESS, null);
+        AtomicReference<EconomyResponse> response = new AtomicReference<>();
+        balances.compute(uuid, (k, bal) -> {
+            if (bal == null) {
+                response.set(new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE,
+                        ColorUtils.toLegacy(messagesCfg.getString("insufficient-funds",
+                                "<red>Insufficient funds"))));
+                return null;
+            }
+            if (bal < amount) {
+                response.set(new EconomyResponse(0, bal, EconomyResponse.ResponseType.FAILURE,
+                        ColorUtils.toLegacy(messagesCfg.getString("insufficient-funds",
+                                "<red>Insufficient funds"))));
+                return bal;
+            }
+            double newBalance = bal - amount;
+            dirty.add(k);
+            response.set(new EconomyResponse(amount, newBalance, EconomyResponse.ResponseType.SUCCESS, null));
+            return newBalance;
+        });
+        return response.get();
     }
 
     @Override
@@ -179,16 +211,24 @@ public class VaultEconomy implements Economy {
                             "<red>Cannot deposit negative amount")));
         }
 
-        double balance = getBalance(player);
-        double newBalance = balance + amount;
-        balances.put(player.getUniqueId(), newBalance);
-        dirty.add(player.getUniqueId());
-        return new EconomyResponse(amount, newBalance, EconomyResponse.ResponseType.SUCCESS, null);
+        UUID uuid = player.getUniqueId();
+        hasAccount(player);
+
+        AtomicReference<EconomyResponse> response = new AtomicReference<>();
+        balances.compute(uuid, (k, bal) -> {
+            double current = bal == null ? 0.0 : bal;
+            double newBalance = current + amount;
+            dirty.add(k);
+            response.set(new EconomyResponse(amount, newBalance, EconomyResponse.ResponseType.SUCCESS, null));
+            return newBalance;
+        });
+        return response.get();
     }
 
     public void setBalance(OfflinePlayer player, double amount) {
-        balances.put(player.getUniqueId(), amount);
-        dirty.add(player.getUniqueId());
+        UUID uuid = player.getUniqueId();
+        balances.put(uuid, amount);
+        dirty.add(uuid);
     }
 
     @Override
@@ -196,13 +236,16 @@ public class VaultEconomy implements Economy {
         if (hasAccount(player)) {
             return false;
         }
-        balances.put(player.getUniqueId(), FepEconomy.getPlugin().getConfig().getDouble(
-                "start-amount", 50.0));
+        double startAmount = FepEconomy.getPlugin().getConfig().getDouble("start-amount", 50.0);
+        Double existing = balances.putIfAbsent(player.getUniqueId(), startAmount);
+        if (existing != null) {
+            return false;
+        }
         SQLHelper helper = new SQLHelper();
         try {
-            helper.createPlayer(player, FepEconomy.getPlugin().getConfig().getDouble(
-                    "start-amount", 50.0));
+            helper.createPlayer(player, startAmount);
         } catch (SQLException e) {
+            balances.remove(player.getUniqueId(), startAmount);
             throw new RuntimeException(e);
         }
         return true;

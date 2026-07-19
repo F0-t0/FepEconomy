@@ -2,6 +2,7 @@ package Fepbox.FepEconomy.Listeners;
 
 import java.sql.SQLException;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -17,11 +18,12 @@ public class onLeave implements Listener {
         VaultEconomy econ = FepEconomy.getPlugin().getVaultEconomy();
         econ.getDirty().remove(e.getPlayer().getUniqueId());
         FepEconomy.removeDataManger(e.getPlayer().getUniqueId());
+        Player p = e.getPlayer();
         Scheduler.runAsync(() -> {
             SQLHelper helper = new SQLHelper();
             try {
-                helper.savePlayer(e.getPlayer());
-                econ.removeFromHashMap(e.getPlayer());
+                helper.savePlayer(p);
+                econ.removeFromHashMap(p);
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
