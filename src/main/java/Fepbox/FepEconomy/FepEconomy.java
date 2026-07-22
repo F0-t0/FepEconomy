@@ -28,6 +28,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.SimpleCommandMap;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -36,6 +44,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -172,22 +181,46 @@ public final class FepEconomy extends JavaPlugin {
         }
         this.vaultEconomy = new VaultEconomy();
         this.vaultEconomy.loadCache();
+
+        boolean baltop = getConfig().getBoolean("features.baltop");
+        boolean withdraw = getConfig().getBoolean("features.withdraw");
+        boolean payhistory = getConfig().getBoolean("features.payhistory");
+        boolean paytoggle = getConfig().getBoolean("features.paytoggle");
+
         getServer().getServicesManager().register(Economy.class, this.vaultEconomy, this, ServicePriority.Normal);
-        getServer().getPluginManager().registerEvents(new ClickHandler(), this);
+        if (baltop || payhistory) {
+            getServer().getPluginManager().registerEvents(new ClickHandler(), this);
+        }
         getServer().getPluginManager().registerEvents(new onLeave(), this);
         getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
-        getServer().getPluginManager().registerEvents(new onRightClickEvent(), this);
+        if (withdraw) {
+            getServer().getPluginManager().registerEvents(new onRightClickEvent(), this);
+            getCommand("withdraw").setExecutor(new withdrawCommand());
+        } else {
+            unregisterFromTabCompletion("withdraw");
+        }
         getCommand("bal").setExecutor(new balCommand());
-        getCommand("withdraw").setExecutor(new withdrawCommand());
-
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             CommandManager.register(plugin, commands.registrar());
         });
 
         getCommand("pay").setExecutor(new payCommand());
-        getCommand("togglepay").setExecutor(new togglePayCommand());
-        getCommand("payhistory").setExecutor(new payHistoryCommand());
-        getCommand("baltop").setExecutor(new balTopCommand());
+        if (paytoggle) {
+            getCommand("togglepay").setExecutor(new togglePayCommand());
+        } else {
+            unregisterFromTabCompletion("togglepay");
+            unregisterFromTabCompletion("paytoggle");
+        }
+        if (payhistory) {
+            getCommand("payhistory").setExecutor(new payHistoryCommand());
+        } else {
+            unregisterFromTabCompletion("payhistory");
+        }
+        if (baltop) {
+            getCommand("baltop").setExecutor(new balTopCommand());
+        } else {
+            unregisterFromTabCompletion("baltop");
+        }
 
         sql = new SQLHelper();
 
@@ -248,6 +281,31 @@ public final class FepEconomy extends JavaPlugin {
             e.printStackTrace();
         }
         return ver;
+    }
+
+
+    public void unregisterFromTabCompletion(String commandName) {
+        try {
+            Server server = Bukkit.getServer();
+            SimpleCommandMap commandMap = (SimpleCommandMap) server.getClass()
+                .getDeclaredMethod("getCommandMap").invoke(server);
+
+            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+
+            knownCommands.remove(commandName.toLowerCase());
+            knownCommands.remove("fepeconomy:" + commandName.toLowerCase());
+
+            Command command = commandMap.getCommand(commandName);
+            if (command != null) {
+                command.unregister(commandMap);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

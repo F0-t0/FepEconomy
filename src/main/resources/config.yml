@@ -14,6 +14,17 @@ formatting:
   quadrillion: "Q"
   quintillion: "Qi"
 
+# Which of these features should be enabled
+# True - Enabled
+# False - Disabled
+# YOU NEED TO RESTART YOUR SERVER FOR THE CHANGES TO MAKE EFFECT
+features:
+  withdraw: true
+  baltop: true
+  payhistory: true
+  togglepay: true
+
+
 #Should it filter out warnings
 #From skins not loading
 #WARNING: if enabled could filter out useful errors
