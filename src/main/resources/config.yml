@@ -6,6 +6,24 @@ symbol: $
 currency-name-singular: "dollar"
 currency-name-plural: "dollars"
 
+formatting:
+  thousand: "k"
+  million: "M"
+  billion: "B"
+  trillion: "T"
+  quadrillion: "Q"
+  quintillion: "Qi"
+
+# Which of these features should be enabled
+# True - Enabled
+# False - Disabled
+# YOU NEED TO RESTART YOUR SERVER FOR THE CHANGES TO MAKE EFFECT
+features:
+  withdraw: true
+  baltop: true
+  payhistory: true
+  togglepay: true
+
 
 #Should it filter out warnings
 #From skins not loading

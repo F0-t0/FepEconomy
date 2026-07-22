@@ -42,28 +42,39 @@ reset: "<green>Reset %player%'s balance to %amount%"
 reset-all: "<green>Reset %count% players to %amount%"
 
 #---- Menu Globals----
-nextPage-name: "<gold>Next Page"
-previousPage-name: "<gold>Previous Page"
+nextPage-name: "<gold><!italic>Next Page"
+previousPage-name: "<gold><!italic>Previous Page"
 
 #----------- Transaction History -----------
 
 guiTitle: "<green>Transaction History"
 
-status-received: "<green><bold>RECEIVED"
-status-sent: "<dark_red><bold>SENT"
+status-received: "<green><bold><!italic>RECEIVED"
+status-sent: "<dark_red><bold><!italic>SENT"
 
-Transaction-name: "<aqua><bold>TRANSACTION "
+Transaction-name: "<aqua><bold><!italic>TRANSACTION "
 Transaction-Lore:
-  - "<gray>- <white><bold>Amount: <aqua><bold>%amount%"
-  - "<gray>- <white><bold>Sender: <aqua><bold>%sender%"
-  - "<gray>- <white><bold>Receiver: <aqua><bold>%receiver%"
-  - "<gray>- <white><bold>Status: <aqua><bold>%status%"
-  - "<gray>- <white><bold>Time: <aqua><bold>%time%"
+  - "<gray><!italic>- <white><bold>Amount: <aqua><bold>%amount%"
+  - "<gray><!italic>- <white><bold>Sender: <aqua><bold>%sender%"
+  - "<gray><!italic>- <white><bold>Receiver: <aqua><bold>%receiver%"
+  - "<gray><!italic>- <white><bold>Status: <aqua><bold>%status%"
+  - "<gray><!italic>- <white><bold>Time: <aqua><bold>%time%"
 
 #----------- BalTop -----------
 balTop-Title: "<gold>BalTOP"
 
-head-name: "<white>%place%. <gold>%player%"
+head-name: "<white><!italic>%place%. <gold>%player%"
 head-lore:
   - ""
-  - "<gray>- <white><bold>Balance: <aqua><bold>%bal%"
+  - "<gray><!italic>- <white><bold>Balance: <aqua><bold>%bal%"
+
+#---------- Withdraw Check ----------
+check:
+    material: PAPER
+    displayname: "<green><!italic>Check $"
+    lore:
+        - "<gray><!italic>To use this check click: <green>RMB"
+        - ""
+        - "<gray><!italic>Amount: <green>%amount%"
+        - "<gray><!italic>Owner: <green>%owner%"
+message-received: "<green>Succesfully claimed %amount%"

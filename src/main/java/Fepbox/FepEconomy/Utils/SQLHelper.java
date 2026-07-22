@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 public class SQLHelper {
     private static Economy econ;
 
@@ -23,21 +22,27 @@ public class SQLHelper {
     public void savePlayer(OfflinePlayer player) throws SQLException {
         double bal = econ.getBalance(player);
         String name = player.getName();
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET name = ?, balance = ? WHERE uuid = ?")) {
-            ps.setString(1, name);
-            ps.setDouble(2, bal);
-            ps.setString(3, player.getUniqueId().toString());
-            ps.executeUpdate();
-        }
+        Database.run(con -> {
+            try (PreparedStatement ps = con.prepareStatement(
+                    "UPDATE accounts SET name = ?, balance = ? WHERE uuid = ?")) {
+                ps.setString(1, name);
+                ps.setDouble(2, bal);
+                ps.setString(3, player.getUniqueId().toString());
+                ps.executeUpdate();
+            }
+        });
     }
 
     public void updateExemptStatus(UUID uuid, boolean exempt) {
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET exempt = ? WHERE uuid = ?")) {
-            ps.setInt(1, exempt ? 1 : 0);
-            ps.setString(2, uuid.toString());
-            ps.executeUpdate();
+        try {
+            Database.run(con -> {
+                try (PreparedStatement ps = con.prepareStatement(
+                        "UPDATE accounts SET exempt = ? WHERE uuid = ?")) {
+                    ps.setInt(1, exempt ? 1 : 0);
+                    ps.setString(2, uuid.toString());
+                    ps.executeUpdate();
+                }
+            });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -45,161 +50,175 @@ public class SQLHelper {
 
     public void createPlayer(OfflinePlayer player, double bal) throws SQLException {
         String name = player.getName();
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("INSERT INTO accounts (uuid, name, balance) VALUES (?, ?, ?)")) {
-            ps.setString(1, player.getUniqueId().toString());
-            ps.setString(2, name);
-            ps.setDouble(3, bal);
-            ps.executeUpdate();
-        }
+        Database.run(con -> {
+            try (PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO accounts (uuid, name, balance) VALUES (?, ?, ?)")) {
+                ps.setString(1, player.getUniqueId().toString());
+                ps.setString(2, name);
+                ps.setDouble(3, bal);
+                ps.executeUpdate();
+            }
+        });
     }
 
     public void updatePlayerName(UUID uuid, String name) throws SQLException {
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("UPDATE accounts SET name = ? WHERE uuid = ?")) {
-            ps.setString(1, name);
-            ps.setString(2, uuid.toString());
-            ps.executeUpdate();
-        }
+        Database.run(con -> {
+            try (PreparedStatement ps = con.prepareStatement(
+                    "UPDATE accounts SET name = ? WHERE uuid = ?")) {
+                ps.setString(1, name);
+                ps.setString(2, uuid.toString());
+                ps.executeUpdate();
+            }
+        });
     }
 
     public UUID getUUIDByName(String name) {
-        Connection con = FepEconomy.getPlugin().getConnection();
-        if (con == null) {
-            return null;
-        }
-        try (PreparedStatement ps = con.prepareStatement("SELECT uuid FROM accounts WHERE name = ? COLLATE NOCASE LIMIT 1")) {
-            ps.setString(1, name);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return UUID.fromString(rs.getString("uuid"));
+        try {
+            return Database.call(con -> {
+                if (con == null) {
+                    return null;
                 }
-            }
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT uuid FROM accounts WHERE name = ? COLLATE NOCASE LIMIT 1")) {
+                    ps.setString(1, name);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return UUID.fromString(rs.getString("uuid"));
+                        }
+                    }
+                }
+                return null;
+            });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 
     public String getNamebyUUID(UUID uuid) {
-        Connection con = FepEconomy.getPlugin().getConnection();
-        if (con == null) {
-            return null;
-        }
-        try (PreparedStatement ps = con.prepareStatement("SELECT name FROM accounts WHERE uuid = ? COLLATE NOCASE LIMIT 1")) {
-            ps.setString(1, uuid.toString());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("name");
+        try {
+            return Database.call(con -> {
+                if (con == null) {
+                    return null;
                 }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }
-
-    public void saveTransaction(UUID playerUUID, double amount, String sender, String receiver, String status, long timestamp) {
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement(
-                "INSERT INTO history (player_uuid, amount, sender, receiver, status, timestamp)" +
-                        "VALUES (?, ?, ?, ?, ?, ?)"
-        )) {
-            ps.setString(1, playerUUID.toString());
-            ps.setDouble(2, amount);
-            ps.setString(3, sender);
-            ps.setString(4, receiver);
-            ps.setString(5, status);
-            ps.setLong(6, timestamp);
-
-            ps.executeUpdate();
-
-            trimHistory(playerUUID, FepEconomy.getPlugin().getConfig().getInt("max-history"));
-
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT name FROM accounts WHERE uuid = ? COLLATE NOCASE LIMIT 1")) {
+                    ps.setString(1, uuid.toString());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getString("name");
+                        }
+                    }
+                }
+                return null;
+            });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void trimHistory(UUID playerUUID, int max) {
-        Connection con = FepEconomy.getPlugin().getConnection();
+    public void saveTransaction(UUID playerUUID, double amount, String sender, String receiver, String status,
+            long timestamp) {
+        try {
+            Database.run(con -> {
+                try (PreparedStatement ps = con.prepareStatement(
+                        "INSERT INTO history (player_uuid, amount, sender, receiver, status, timestamp)"
+                                + "VALUES (?, ?, ?, ?, ?, ?)"
+                )) {
+                    ps.setString(1, playerUUID.toString());
+                    ps.setDouble(2, amount);
+                    ps.setString(3, sender);
+                    ps.setString(4, receiver);
+                    ps.setString(5, status);
+                    ps.setLong(6, timestamp);
+                    ps.executeUpdate();
+                }
+                trimHistory(con, playerUUID, FepEconomy.getPlugin().getConfig().getInt("max-history"));
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void trimHistory(Connection con, UUID playerUUID, int max) throws SQLException {
         try (PreparedStatement ps = con.prepareStatement(
-                "DELETE FROM history " +
-                        "WHERE player_uuid = ? " +
-                        "AND id NOT IN ( " +
-                        "SELECT id FROM history " +
-                        "WHERE player_uuid = ? " +
-                        "ORDER BY timestamp DESC " +
-                        "LIMIT ? " +
-                        ")")
+                "DELETE FROM history "
+                        + "WHERE player_uuid = ? "
+                        + "AND id NOT IN ( "
+                        + "SELECT id FROM history "
+                        + "WHERE player_uuid = ? "
+                        + "ORDER BY timestamp DESC "
+                        + "LIMIT ? "
+                        + ")")
         ) {
             ps.setString(1, playerUUID.toString());
             ps.setString(2, playerUUID.toString());
             ps.setInt(3, max);
             ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
     public List<UUID> getAllAccounts() throws SQLException {
-        List<UUID> uuids = new ArrayList<>();
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement("SELECT uuid FROM accounts");
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                uuids.add(UUID.fromString(rs.getString("uuid")));
-            }
-        }
-        return uuids;
-    }
-
-    public List<Transaction> getHistory(UUID playerUUID, int limit, int page, int pagesize) {
-        List<Transaction> transactions = new ArrayList<>();
-        int offset = (page - 1) * pagesize;
-
-        Connection con = FepEconomy.getPlugin().getConnection();
-        try (PreparedStatement ps = con.prepareStatement(
-                "SELECT amount, sender, receiver, status, timestamp FROM history WHERE player_uuid = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?"
-        )) {
-            ps.setString(1, playerUUID.toString());
-            ps.setInt(2, limit);
-            ps.setInt(3, offset);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    transactions.add(new Transaction(
-                            rs.getDouble("amount"),
-                            rs.getString("sender"),
-                            rs.getString("receiver"),
-                            rs.getString("status"),
-                            rs.getLong("timestamp")
-                    ));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return transactions;
-    }
-
-    public List<UUID> getTopPlayers(int offset, int limit) {
-        Connection con = FepEconomy.getPlugin().getConnection();
-        List<UUID> uuids = new ArrayList<>();
-        try (PreparedStatement ps = con.prepareStatement(
-                "SELECT uuid FROM accounts WHERE exempt = 0 ORDER BY balance DESC LIMIT ? OFFSET ?"
-        )) {
-            ps.setInt(1, limit);
-            ps.setInt(2, offset);
-            try (ResultSet rs = ps.executeQuery()) {
+        return Database.call(con -> {
+            List<UUID> uuids = new ArrayList<>();
+            try (PreparedStatement ps = con.prepareStatement("SELECT uuid FROM accounts");
+                 ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     uuids.add(UUID.fromString(rs.getString("uuid")));
                 }
             }
+            return uuids;
+        });
+    }
+
+    public List<Transaction> getHistory(UUID playerUUID, int limit, int page, int pagesize) {
+        int offset = (page - 1) * pagesize;
+        try {
+            return Database.call(con -> {
+                List<Transaction> transactions = new ArrayList<>();
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT amount, sender, receiver, status, timestamp FROM history WHERE player_uuid = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+                )) {
+                    ps.setString(1, playerUUID.toString());
+                    ps.setInt(2, limit);
+                    ps.setInt(3, offset);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            transactions.add(new Transaction(
+                                    rs.getDouble("amount"),
+                                    rs.getString("sender"),
+                                    rs.getString("receiver"),
+                                    rs.getString("status"),
+                                    rs.getLong("timestamp")
+                            ));
+                        }
+                    }
+                }
+                return transactions;
+            });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return uuids;
+    }
+
+    public List<UUID> getTopPlayers(int offset, int limit) {
+        try {
+            return Database.call(con -> {
+                List<UUID> uuids = new ArrayList<>();
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT uuid FROM accounts WHERE exempt = 0 ORDER BY balance DESC LIMIT ? OFFSET ?"
+                )) {
+                    ps.setInt(1, limit);
+                    ps.setInt(2, offset);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            uuids.add(UUID.fromString(rs.getString("uuid")));
+                        }
+                    }
+                }
+                return uuids;
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
