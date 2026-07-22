@@ -177,7 +177,6 @@ public class VaultEconomy implements Economy {
                     ColorUtils
                             .toLegacy(messagesCfg.getString("no-balance", "<red>You cannot withdraw negative amount")));
         }
-
         UUID uuid = player.getUniqueId();
         hasAccount(player);
 

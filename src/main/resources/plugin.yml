@@ -15,6 +15,7 @@ libraries:
   - org.xerial:sqlite-jdbc:3.45.3.0
 
 commands:
+  withdraw:
   bal:
     aliases:
       - balance
@@ -30,4 +31,3 @@ permissions:
     default: op
   fepeconomy.baltop.exempt:
     default: op
-

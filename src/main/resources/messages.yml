@@ -67,3 +67,14 @@ head-name: "<white>%place%. <gold>%player%"
 head-lore:
   - ""
   - "<gray>- <white><bold>Balance: <aqua><bold>%bal%"
+
+#---------- Withdraw Check ----------
+check:
+    material: PAPER
+    displayname: "<green><!italic>Check $"
+    lore:
+        - "<gray><!italic>To use this check click: <green>RMB"
+        - ""
+        - "<gray><!italic>Amount: <green>%amount%"
+        - "<gray><!italic>Owner: <green>%owner%"
+receive-message: "<green>Succesfully claimed %amount%"

@@ -3,6 +3,7 @@ package Fepbox.FepEconomy;
 import Fepbox.FepEconomy.Comands.*;
 import Fepbox.FepEconomy.Listeners.onJoinEvent;
 import Fepbox.FepEconomy.Listeners.onLeave;
+import Fepbox.FepEconomy.Listeners.onRightClickEvent;
 import Fepbox.FepEconomy.MenuManager.DataManger;
 import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
 import Fepbox.FepEconomy.Utils.Database;
@@ -145,7 +146,7 @@ public final class FepEconomy extends JavaPlugin {
         int pluginId = 32204;
         Metrics metrics = new Metrics(plugin, pluginId);
 
-        key = new NamespacedKey(plugin, "togglePay");
+        key = new NamespacedKey(plugin, "FepEconoomy");
         saveDefaultConfig();
         File file = new File(getDataFolder(), "messages.yml");
         if (!file.exists()) {
@@ -175,7 +176,9 @@ public final class FepEconomy extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ClickHandler(), this);
         getServer().getPluginManager().registerEvents(new onLeave(), this);
         getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
+        getServer().getPluginManager().registerEvents(new onRightClickEvent(), this);
         getCommand("bal").setExecutor(new balCommand());
+        getCommand("withdraw").setExecutor(new withdrawCommand());
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             CommandManager.register(plugin, commands.registrar());
@@ -212,10 +215,10 @@ public final class FepEconomy extends JavaPlugin {
                     String newVer = checkUpdates("3.0");
                     String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
                     Bukkit.getConsoleSender().sendMessage("""
-                            
+
                             §dAutor: §7Foto
                             §dVersion: 3.0
-                            
+
                             §dUpdate:
                             """
                             + newUpdate);
