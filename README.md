@@ -7,6 +7,7 @@
 <p align="center">
 <img alt="paper" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/paper_vector.svg">
   <img alt="purpur" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/purpur_vector.svg">
+  <img alt="folia" height="56" src="https://wsrv.nl/?url=https%3A%2F%2Fbadges.penpow.dev%2Fbadges%2Fsupported%2Ffolia%2Fcozy.svg">
   <br>
   <img alt="bukkit" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/bukkit_vector.svg">
   <img alt="spigot" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/spigot_vector.svg">
