@@ -89,6 +89,10 @@ public class payCommand implements CommandExecutor, TabCompleter {
         rmsg = rmsg.replace("%sender%", sender.getName());
         Bukkit.getPlayer(args[0]).sendMessage(ColorUtils.deserialize(rmsg));
 
+        if (!FepEconomy.getPlugin().isPayhistory()) {
+            return true;
+        }
+
         SQLHelper sql = new SQLHelper();
         Player target = (Player) Bukkit.getPlayer(args[0]);
         Player p = (Player) sender;

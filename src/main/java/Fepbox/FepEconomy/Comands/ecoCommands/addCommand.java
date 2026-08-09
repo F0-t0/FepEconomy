@@ -36,7 +36,6 @@ public class addCommand {
                                 .executes(ctx -> execute(ctx))));
     }
 
-
     private static int execute(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         Economy econ = FepEconomy.getPlugin().getVaultEconomy();
         PlayerProfileListResolver r1 = ctx.getArgument("player", PlayerProfileListResolver.class);
@@ -44,33 +43,33 @@ public class addCommand {
         OfflinePlayer target = null;
         for (PlayerProfile profile : col) {
             target = Bukkit.getOfflinePlayer(profile.getId());
-            break;
-        }
-        if (target == null) {
-            ctx.getSource().getSender().sendMessage(ColorUtils.deserialize(
-                    FepEconomy.getMessagesCfg().getString("player-not-found", "<red>Could not find the player")));
-            return Command.SINGLE_SUCCESS;
-        }
-        String amountS = ctx.getArgument("amount", String.class);
-        if (!econ.hasAccount(target)) {
-            ctx.getSource().getSender().sendMessage(ColorUtils.deserialize(
-                    FepEconomy.getMessagesCfg().getString("player-not-found", "<red>Could not find the player")));
-            return Command.SINGLE_SUCCESS;
-        }
-        double amount = FepEconomy.parseAmount(amountS);
-        if (Double.isNaN(amount)) {
-            ctx.getSource().getSender().sendMessage(ColorUtils.deserialize(
-                    FepEconomy.getMessagesCfg().getString("invalid-number", "<red>Invalid number format")));
-            return Command.SINGLE_SUCCESS;
-        }
-        econ.depositPlayer(target, amount);
 
-        Component msg = ColorUtils.deserialize(
-                FepEconomy.getMessagesCfg().getString("add",
-                        "<green>Added %amount% to %player%'s balance")
-                        .replace("%amount%", econ.format(amount))
-                        .replace("%player%", target.getName()));
-        ctx.getSource().getSender().sendMessage(msg);
+            if (target == null) {
+                ctx.getSource().getSender().sendMessage(ColorUtils.deserialize(
+                        FepEconomy.getMessagesCfg().getString("player-not-found", "<red>Could not find the player")));
+                return Command.SINGLE_SUCCESS;
+            }
+            String amountS = ctx.getArgument("amount", String.class);
+            if (!econ.hasAccount(target)) {
+                ctx.getSource().getSender().sendMessage(ColorUtils.deserialize(
+                        FepEconomy.getMessagesCfg().getString("player-not-found", "<red>Could not find the player")));
+                return Command.SINGLE_SUCCESS;
+            }
+            double amount = FepEconomy.parseAmount(amountS);
+            if (Double.isNaN(amount)) {
+                ctx.getSource().getSender().sendMessage(ColorUtils.deserialize(
+                        FepEconomy.getMessagesCfg().getString("invalid-number", "<red>Invalid number format")));
+                return Command.SINGLE_SUCCESS;
+            }
+            econ.depositPlayer(target, amount);
+
+            Component msg = ColorUtils.deserialize(
+                    FepEconomy.getMessagesCfg().getString("add",
+                            "<green>Added %amount% to %player%'s balance")
+                            .replace("%amount%", econ.format(amount))
+                            .replace("%player%", target.getName()));
+            ctx.getSource().getSender().sendMessage(msg);
+        }
         return Command.SINGLE_SUCCESS;
     }
 }

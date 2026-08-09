@@ -64,6 +64,7 @@ public final class FepEconomy extends JavaPlugin {
     private final String user = "F0-t0";
     private final String repo = "FepEconomy";
     private boolean isnewVersion;
+    private boolean payhistory;
 
     public static FepEconomy getPlugin() {
         return plugin;
@@ -122,7 +123,7 @@ public final class FepEconomy extends JavaPlugin {
                 config.getString("formatting.million", "M"),
                 config.getString("formatting.thousand", "k")
         };
-        double[] multipliers = {1e18, 1e15, 1e12, 1e9, 1e6, 1e3};
+        double[] multipliers = { 1e18, 1e15, 1e12, 1e9, 1e6, 1e3 };
 
         double multiplier = 1;
         for (int i = 0; i < suffixes.length; i++) {
@@ -184,7 +185,7 @@ public final class FepEconomy extends JavaPlugin {
 
         boolean baltop = getConfig().getBoolean("features.baltop");
         boolean withdraw = getConfig().getBoolean("features.withdraw");
-        boolean payhistory = getConfig().getBoolean("features.payhistory");
+        payhistory = getConfig().getBoolean("features.payhistory");
         boolean paytoggle = getConfig().getBoolean("features.paytoggle");
 
         getServer().getServicesManager().register(Economy.class, this.vaultEconomy, this, ServicePriority.Normal);
@@ -283,12 +284,11 @@ public final class FepEconomy extends JavaPlugin {
         return ver;
     }
 
-
     public void unregisterFromTabCompletion(String commandName) {
         try {
             Server server = Bukkit.getServer();
             SimpleCommandMap commandMap = (SimpleCommandMap) server.getClass()
-                .getDeclaredMethod("getCommandMap").invoke(server);
+                    .getDeclaredMethod("getCommandMap").invoke(server);
 
             Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
             knownCommandsField.setAccessible(true);
@@ -324,6 +324,10 @@ public final class FepEconomy extends JavaPlugin {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isPayhistory() {
+        return payhistory;
     }
 
     public Connection getConnection() {
