@@ -30,11 +30,13 @@ logs/
 ### RUN ###
 run
 bin
+.gradle
 .settings
 gradle
+.classpath
+.project
+build.gradle.kts
 gradle.properties
-.gradle
 gradlew
 gradlew.bat
-build.gradle.kts
 settings.gradle.kts
