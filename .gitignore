@@ -40,3 +40,4 @@ gradle.properties
 gradlew
 gradlew.bat
 settings.gradle.kts
+.vscode/settings.json
