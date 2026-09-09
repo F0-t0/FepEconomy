@@ -3,6 +3,11 @@
 use-symbol: false
 symbol: $
 
+
+# Choose wether to give anonymous data about your server
+# Like version,localaction of the server (Data is collected using BStats)
+telemetry: true
+
 currency-name-singular: "dollar"
 currency-name-plural: "dollars"
 

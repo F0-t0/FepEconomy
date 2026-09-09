@@ -1,43 +1,9 @@
 package Fepbox.FepEconomy;
 
-import Fepbox.FepEconomy.Comands.*;
-import Fepbox.FepEconomy.Listeners.onJoinEvent;
-import Fepbox.FepEconomy.Listeners.onLeave;
-import Fepbox.FepEconomy.Listeners.onRightClickEvent;
-import Fepbox.FepEconomy.MenuManager.DataManger;
-import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
-import Fepbox.FepEconomy.Utils.Database;
-import Fepbox.FepEconomy.Utils.SQLHelper;
-import Fepbox.FepEconomy.Utils.Scheduler;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.milkbowl.vault.economy.Economy;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.filter.RegexFilter;
-import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.ServicePriority;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import org.bukkit.Server;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.SimpleCommandMap;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import java.io.File;
 import java.io.InputStreamReader;
+import static java.lang.Double.NaN;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,7 +14,44 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static java.lang.Double.NaN;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.filter.RegexFilter;
+import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
+import org.bukkit.command.Command;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import Fepbox.FepEconomy.Comands.CommandManager;
+import Fepbox.FepEconomy.Comands.balCommand;
+import Fepbox.FepEconomy.Comands.balTopCommand;
+import Fepbox.FepEconomy.Comands.payCommand;
+import Fepbox.FepEconomy.Comands.payHistoryCommand;
+import Fepbox.FepEconomy.Comands.togglePayCommand;
+import Fepbox.FepEconomy.Comands.withdrawCommand;
+import Fepbox.FepEconomy.Listeners.onJoinEvent;
+import Fepbox.FepEconomy.Listeners.onLeave;
+import Fepbox.FepEconomy.Listeners.onRightClickEvent;
+import Fepbox.FepEconomy.MenuManager.DataManger;
+import Fepbox.FepEconomy.MenuManager.listener.ClickHandler;
+import Fepbox.FepEconomy.Utils.Database;
+import Fepbox.FepEconomy.Utils.SQLHelper;
+import Fepbox.FepEconomy.Utils.Scheduler;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import net.milkbowl.vault.economy.Economy;
 
 public final class FepEconomy extends JavaPlugin {
 
@@ -152,9 +155,10 @@ public final class FepEconomy extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-
-        int pluginId = 32204;
-        Metrics metrics = new Metrics(plugin, pluginId);
+        if (getConfig().getBoolean("telemetry")) {
+            int pluginId = 32204;
+            Metrics metrics = new Metrics(plugin, pluginId);
+        }
 
         key = new NamespacedKey(plugin, "FepEconoomy");
         saveDefaultConfig();
