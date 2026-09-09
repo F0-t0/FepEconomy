@@ -69,6 +69,10 @@ public final class FepEconomy extends JavaPlugin {
     private boolean isnewVersion;
     private boolean payhistory;
 
+    // Variables for the versions
+    private boolean isDev = true;
+    private String ver = "3.1";
+
     public static FepEconomy getPlugin() {
         return plugin;
     }
@@ -147,7 +151,6 @@ public final class FepEconomy extends JavaPlugin {
             return NaN;
         }
     }
-
     public static NamespacedKey getKey() {
         return key;
     }
@@ -238,6 +241,7 @@ public final class FepEconomy extends JavaPlugin {
         }
 
         startSaveTask();
+        
         Scheduler.runLater(
                 () -> {
                     Bukkit.getConsoleSender().sendMessage("""
@@ -250,17 +254,22 @@ public final class FepEconomy extends JavaPlugin {
                              §6         | |                                           __/ |
                              §6         |_|                                          |___/\s
                             """);
-                    String newVer = checkUpdates("3.0");
-                    String newUpdate = isnewVersion ? "§4New Version avaible: " + newVer : "§7You're up to date!";
+                    String newVer = checkUpdates(ver);
+                    String newUpdate = (isnewVersion && !isDev) ? "§4New Version avaible: " + newVer : "§7You're up to date!";
+                    if (isDev) {
+                        ver = ver + "-dev";
+                    }
                     Bukkit.getConsoleSender().sendMessage("""
 
                             §dAutor: §7Foto
-                            §dVersion: 3.0
+                            §dVersion: """ + ver +
+                            """
+                                    
 
                             §dUpdate:
                             """
                             + newUpdate);
-                }, 300L);
+                }, 150L);
 
     }
 
