@@ -29,6 +29,7 @@ logs/
 
 ### RUN ###
 run/
+build/
 bin/
 .gradle/
 .settings/
