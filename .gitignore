@@ -28,11 +28,11 @@ logs/
 .env.local
 
 ### RUN ###
-run
-bin
-.gradle
-.settings
-gradle
+run/
+bin/
+.gradle/
+.settings/
+gradle/
 .classpath
 .project
 build.gradle.kts
