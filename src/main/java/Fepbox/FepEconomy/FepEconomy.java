@@ -414,7 +414,7 @@ public final class FepEconomy extends JavaPlugin {
             ctx.updateLoggers();
 
         } catch (Exception e) {
-            getLogger().warning("Nie udało się zaaplikować filtra logów: " + e.getMessage());
+            getLogger().warning("Couldn't apply the log's filter: " + e.getMessage());
         }
     }
 }
